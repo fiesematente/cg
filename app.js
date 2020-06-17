@@ -226,7 +226,7 @@ async function houseColorVertexRandom(){
 async function createUfo(gl){
 	let ufo = {};
 	
-	let positionVertices = await fetchModel('ufo/vonBlenderExport.obj');
+	let positionVertices = await fetchModel('models/ufo.obj');
 
 	ufo.vertexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, ufo.vertexBufferObject);
@@ -234,11 +234,11 @@ async function createUfo(gl){
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	
 	ufo.draw = function(positionAttribLocation, colorAttribLocation){
+		gl.enableVertexAttribArray(positionAttribLocation);
+		gl.enableVertexAttribArray(colorAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, ufo.vertexBufferObject);
 		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 8 * Float32Array.BYTES_PER_ELEMENT, 0);
 		gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 8 * Float32Array.BYTES_PER_ELEMENT, 5 * Float32Array.BYTES_PER_ELEMENT);
-		gl.enableVertexAttribArray(positionAttribLocation);
-		gl.enableVertexAttribArray(colorAttribLocation);
 		gl.drawArrays(gl.TRIANGLES, 0, positionVertices.length/8);
 		gl.disableVertexAttribArray(positionAttribLocation);
 		gl.disableVertexAttribArray(colorAttribLocation);
@@ -249,125 +249,126 @@ async function createUfo(gl){
 async function createHouse(gl){
 	let house = {};
 	
-	let positionVertices =                       // mehrere Vertices für mehrere die Dreiecke aus denen jeweils die Vierecke bestehen.
-	[ // X,    Y,    Z
+let positionVertices =                       // mehrere Vertices für mehrere die Dreiecke aus denen jeweils die Vierecke bestehen.
+[ // X,    Y,    Z
 
-		// Top
-		/*-1.0, 1.0, -1.0,
-		-1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, -1.0,*/
+	// Top
+	/*-1.0, 1.0, -1.0,
+	-1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0,
+	1.0, 1.0, -1.0,*/
 
-		// Top_Right
-		0.0, 2.0, -1.0,
-		0.0, 2.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, -1.0,
+	// Top_Right
+	0.0, 2.0, -1.0,
+	0.0, 2.0, 1.0,
+	1.0, 1.0, 1.0,
+	1.0, 1.0, -1.0,
 
-		// Top_left
-		-1.0, 1.0, -1.0,
-		-1.0, 1.0, 1.0,
-		0.0, 2.0, 1.0,
-		0.0, 2.0, -1.0,
+	// Top_left
+	-1.0, 1.0, -1.0,
+	-1.0, 1.0, 1.0,
+	0.0, 2.0, 1.0,
+	0.0, 2.0, -1.0,
 
-		//Top_Front
-		
-		//Top_Back
+	//Top_Front
+	
+	//Top_Back
 
-		// Left
-		-1.0, 1.0, 1.0,
-		-1.0, -1.0, 1.0,
-		-1.0, -1.0, -1.0,
-		-1.0, 1.0, -1.0,
+	// Left
+	-1.0, 1.0, 1.0,
+	-1.0, -1.0, 1.0,
+	-1.0, -1.0, -1.0,
+	-1.0, 1.0, -1.0,
 
-		// Right
-		1.0, 1.0, 1.0,
-		1.0, -1.0, 1.0,
-		1.0, -1.0, -1.0,
-		1.0, 1.0, -1.0,
+	// Right
+	1.0, 1.0, 1.0,
+	1.0, -1.0, 1.0,
+	1.0, -1.0, -1.0,
+	1.0, 1.0, -1.0,
 
-		// Front
-		1.0, 1.0, 1.0,
-		1.0, -1.0, 1.0,
-		-1.0, -1.0, 1.0,
-		-1.0, 1.0, 1.0,
+	// Front
+	1.0, 1.0, 1.0,
+	1.0, -1.0, 1.0,
+	-1.0, -1.0, 1.0,
+	-1.0, 1.0, 1.0,
 
-		// Back
-		1.0, 1.0, -1.0,
-		1.0, -1.0, -1.0,
-		-1.0, -1.0, -1.0,
-		-1.0, 1.0, -1.0,
+	// Back
+	1.0, 1.0, -1.0,
+	1.0, -1.0, -1.0,
+	-1.0, -1.0, -1.0,
+	-1.0, 1.0, -1.0,
 
-		// Bottom
-		-1.0, -1.0, -1.0,
-		-1.0, -1.0, 1.0,
-		1.0, -1.0, 1.0,
-		1.0, -1.0, -1.0,
-	];
-	let colorVertices = houseColorVertexRandom();
+	// Bottom
+	-1.0, -1.0, -1.0,
+	-1.0, -1.0, 1.0,
+	1.0, -1.0, 1.0,
+	1.0, -1.0, -1.0,
+];
+let colorVertices = houseColorVertexRandom();
 
-	let vertexVerbindungsIndices =                       // Index-List um zu bestimmen welche Vertices zu welchem Dreieck bzw viereck gehört.
-	[
-		// Top_Right                            Erstes Viereck
-		0, 1, 2,                                //erstes (1von2) zum Viereck gehörendes Dreieck
-		0, 2, 3,                                //zweites (2von2) zum Viereck gehörendes Dreieck
+let vertexVerbindungsIndices =                       // Index-List um zu bestimmen welche Vertices zu welchem Dreieck bzw viereck gehört.
+[
+	// Top_Right                            Erstes Viereck
+	0, 1, 2,                                //erstes (1von2) zum Viereck gehörendes Dreieck
+	0, 2, 3,                                //zweites (2von2) zum Viereck gehörendes Dreieck
 
-		// Top_Left                            	//
-		4, 5, 6,
-		4, 6, 7,
+	// Top_Left                            	//
+	4, 5, 6,
+	4, 6, 7,
 
-		// Left                                 //   ...
-		9, 8, 10,
-		10, 8, 11,
+	// Left                                 //   ...
+	9, 8, 10,
+	10, 8, 11,
 
-		// Right                                //   ...
-		12, 13, 14,
-		12, 14, 15,
+	// Right                                //   ...
+	12, 13, 14,
+	12, 14, 15,
 
-		// Front                                //   ...
-		17, 16, 18,
-		19, 18, 16,
+	// Front                                //   ...
+	17, 16, 18,
+	19, 18, 16,
 
-		// Back                                 //   ...
-		20, 21, 22,
-		20, 22, 23,
+	// Back                                 //   ...
+	20, 21, 22,
+	20, 22, 23,
 
-		// Bottom                               //   ...
-		25, 24, 26,
-		26, 24, 27
-	];
-	//
-	//Buffer erstellen und mit den Daten füllen
-	house.vertexBufferObject = gl.createBuffer();
-	house.indexBufferObject = gl.createBuffer();
-	house.colorBufferObject = gl.createBuffer();
+	// Bottom                               //   ...
+	25, 24, 26,
+	26, 24, 27
+];
+//
+//Buffer erstellen und mit den Daten füllen
+house.vertexBufferObject = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject);
-	gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject);
+house.indexBufferObject = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexVerbindungsIndices), gl.STATIC_DRAW);
 
-	//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexVerbindungsIndices), gl.STATIC_DRAW);
+house.colorBufferObject = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorVertices), gl.STATIC_DRAW);
+
+//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
+
+
+house.draw = function(positionAttribLocation, colorAttribLocation){
+	gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
+	gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject); // Vertex_2
+	gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
+	gl.enableVertexAttribArray(colorAttribLocation); // Color_1
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color_2
+	gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
+	
+	gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
+	
+	gl.disableVertexAttribArray(positionAttribLocation);
+	gl.disableVertexAttribArray(colorAttribLocation);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorVertices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-	house.draw = function(positionAttribLocation, colorAttribLocation){
-		gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject);
-		gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject);
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject);
-		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0);
-		gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0);
-		gl.enableVertexAttribArray(positionAttribLocation);
-		gl.enableVertexAttribArray(colorAttribLocation);
-		gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
-		gl.disableVertexAttribArray(positionAttribLocation);
-		gl.disableVertexAttribArray(colorAttribLocation);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-	}
-	return house;
+}
+return house;
 }
 let InitDemo = async function () {
 //
