@@ -208,19 +208,34 @@ async function fetchModel(location) {
 			}
 		}
 	}
+
+	/*console.log("_______________________________________");
+	console.log("_______________________________________");
+	console.log("_______________V_______________");
+	console.log(v);
+	console.log("_______________Vt_______________");
+	console.log(vt);
+	console.log("_______________Vn_______________");
+	console.log(vn);
+	console.log("_______________Vbo_______________");
+	console.log(vbo);
+	console.log("_______________________________________");
+	console.log("_______________________________________");*/
+
 	return vbo;
 }
-async function houseColorVertexRandom(){
-	let faceColor;
+async function houseColorVertexRandom(quadFaceNumber){
+	let vertColor = [];
 	let houseColVertices = [];
-	for (let face = 0; face < 7; face++){
+	for (let face = 0; face < quadFaceNumber; face++){
 		if(face != 1){
-			faceColor = [Math.random(), Math.random(), Math.random()];
+			vertColor = [Math.random(), Math.random(), Math.random()];
 		}
 		for (let vertex = 0; vertex < 4; vertex++){
-			houseColVertices.push(...faceColor);
+			houseColVertices = houseColVertices.concat(vertColor);
 		}
 	}
+	console.log(houseColVertices);
 	return houseColVertices;
 }
 async function createUfo(gl){
@@ -252,12 +267,6 @@ async function createHouse(gl){
 let positionVertices =                       // mehrere Vertices für mehrere die Dreiecke aus denen jeweils die Vierecke bestehen.
 [ // X,    Y,    Z
 
-	// Top
-	/*-1.0, 1.0, -1.0,
-	-1.0, 1.0, 1.0,
-	1.0, 1.0, 1.0,
-	1.0, 1.0, -1.0,*/
-
 	// Top_Right
 	0.0, 2.0, -1.0,
 	0.0, 2.0, 1.0,
@@ -269,10 +278,6 @@ let positionVertices =                       // mehrere Vertices für mehrere di
 	-1.0, 1.0, 1.0,
 	0.0, 2.0, 1.0,
 	0.0, 2.0, -1.0,
-
-	//Top_Front
-	
-	//Top_Back
 
 	// Left
 	-1.0, 1.0, 1.0,
@@ -304,8 +309,50 @@ let positionVertices =                       // mehrere Vertices für mehrere di
 	1.0, -1.0, 1.0,
 	1.0, -1.0, -1.0,
 ];
-let colorVertices = houseColorVertexRandom();
+let colorVertices = [
+	// R,   G,   B
+	// Top_Right
+	1.0, 1.0, 0.0,
+	1.0, 1.0, 0.0,
+	1.0, 1.0, 0.0,
+	1.0, 1.0, 0.0,
 
+	// Top_Left
+	1.0, 1.0, 0.0,
+	1.0, 1.0, 0.0,
+	1.0, 1.0, 0.0,
+	1.0, 1.0, 0.0,
+
+	// Left
+	1.0, 0.0, 1.0,
+	1.0, 0.0, 1.0,
+	1.0, 0.0, 1.0,
+	1.0, 0.0, 1.0,
+
+	// Right
+	0.0, 1.0, 1.0,
+	0.0, 1.0, 1.0,
+	0.0, 1.0, 1.0,
+	0.0, 1.0, 1.0,
+
+	// Front
+	1.0, 0.0, 0.0,
+	1.0, 0.0, 0.0,
+	1.0, 0.0, 0.0,
+	1.0, 0.0, 0.0,
+
+	// Back
+	0.0, 1.0, 0.0,
+	0.0, 1.0, 0.0,
+	0.0, 1.0, 0.0,
+	0.0, 1.0, 0.0,
+
+	// Bottom
+	0.0, 0.0, 1.0,
+	0.0, 0.0, 1.0,
+	0.0, 0.0, 1.0,
+	0.0, 0.0, 1.0,
+];
 let vertexVerbindungsIndices =                       // Index-List um zu bestimmen welche Vertices zu welchem Dreieck bzw viereck gehört.
 [
 	// Top_Right                            Erstes Viereck
@@ -354,11 +401,15 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorVertices), gl.STATIC_DRAW);
 
 
 house.draw = function(positionAttribLocation, colorAttribLocation){
+
 	gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
 	gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject); // Vertex_2
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color__
 	gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
+
 	gl.enableVertexAttribArray(colorAttribLocation); // Color_1
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color_2
+	gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject); // Color_2
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color__
 	gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
 	
 	gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
@@ -367,7 +418,7 @@ house.draw = function(positionAttribLocation, colorAttribLocation){
 	gl.disableVertexAttribArray(colorAttribLocation);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-}
+};
 return house;
 }
 let InitDemo = async function () {
