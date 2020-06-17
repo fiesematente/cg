@@ -238,6 +238,63 @@ async function houseColorVertexRandom(quadFaceNumber){
 	console.log(houseColVertices);
 	return houseColVertices;
 }
+async function createTerrain(gl){
+	let terrain = {};
+	let positionVertices = [
+		-1, 0, 1,
+		1, 0, 1,
+		-1, 0, -1,
+		1, 0, -1
+	];
+	let colorVertices = [
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0
+	];
+	let vertexVerbindungsIndices = [
+		0, 1, 2,
+		1, 2, 3
+	];
+
+//
+	//Buffer erstellen und mit den Daten füllen
+	terrain.vertexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, terrain.vertexBufferObject);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
+
+	terrain.indexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, terrain.indexBufferObject);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexVerbindungsIndices), gl.STATIC_DRAW);
+
+	terrain.colorBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, terrain.colorBufferObject);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorVertices), gl.STATIC_DRAW);
+
+	//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
+
+
+	terrain.draw = function(positionAttribLocation, colorAttribLocation){
+
+		gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
+		gl.bindBuffer(gl.ARRAY_BUFFER, terrain.vertexBufferObject); // Vertex_2
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, terrain.indexBufferObject); // Color__
+		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
+
+		gl.enableVertexAttribArray(colorAttribLocation); // Color_1
+		gl.bindBuffer(gl.ARRAY_BUFFER, terrain.colorBufferObject); // Color_2
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, terrain.indexBufferObject); // Color__
+		gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
+		
+		gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
+		
+		gl.disableVertexAttribArray(positionAttribLocation);
+		gl.disableVertexAttribArray(colorAttribLocation);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	};
+	return terrain;
+}	
 async function createUfo(gl){
 	let ufo = {};
 	
@@ -264,7 +321,7 @@ async function createUfo(gl){
 async function createHouse(gl){
 	let house = {};
 	
-let positionVertices =                       // mehrere Vertices für mehrere die Dreiecke aus denen jeweils die Vierecke bestehen.
+	let positionVertices =                       // mehrere Vertices für mehrere die Dreiecke aus denen jeweils die Vierecke bestehen.
 [ // X,    Y,    Z
 
 	// Top_Right
@@ -308,118 +365,118 @@ let positionVertices =                       // mehrere Vertices für mehrere di
 	-1.0, -1.0, 1.0,
 	1.0, -1.0, 1.0,
 	1.0, -1.0, -1.0,
-];
-let colorVertices = [
-	// R,   G,   B
-	// Top_Right
-	1.0, 1.0, 0.0,
-	1.0, 1.0, 0.0,
-	1.0, 1.0, 0.0,
-	1.0, 1.0, 0.0,
+	];
+	let colorVertices = [
+		// R,   G,   B
+		// Top_Right
+		1.0, 1.0, 0.0,
+		1.0, 1.0, 0.0,
+		1.0, 1.0, 0.0,
+		1.0, 1.0, 0.0,
 
-	// Top_Left
-	1.0, 1.0, 0.0,
-	1.0, 1.0, 0.0,
-	1.0, 1.0, 0.0,
-	1.0, 1.0, 0.0,
+		// Top_Left
+		1.0, 1.0, 0.0,
+		1.0, 1.0, 0.0,
+		1.0, 1.0, 0.0,
+		1.0, 1.0, 0.0,
 
-	// Left
-	1.0, 0.0, 1.0,
-	1.0, 0.0, 1.0,
-	1.0, 0.0, 1.0,
-	1.0, 0.0, 1.0,
+		// Left
+		1.0, 0.0, 1.0,
+		1.0, 0.0, 1.0,
+		1.0, 0.0, 1.0,
+		1.0, 0.0, 1.0,
 
-	// Right
-	0.0, 1.0, 1.0,
-	0.0, 1.0, 1.0,
-	0.0, 1.0, 1.0,
-	0.0, 1.0, 1.0,
+		// Right
+		1.0, 0.0, 1.0,
+		1.0, 0.0, 1.0,
+		1.0, 0.0, 1.0,
+		1.0, 0.0, 1.0,
 
-	// Front
-	1.0, 0.0, 0.0,
-	1.0, 0.0, 0.0,
-	1.0, 0.0, 0.0,
-	1.0, 0.0, 0.0,
+		// Front
+		1.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
 
-	// Back
-	0.0, 1.0, 0.0,
-	0.0, 1.0, 0.0,
-	0.0, 1.0, 0.0,
-	0.0, 1.0, 0.0,
+		// Back
+		1.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
 
-	// Bottom
-	0.0, 0.0, 1.0,
-	0.0, 0.0, 1.0,
-	0.0, 0.0, 1.0,
-	0.0, 0.0, 1.0,
-];
-let vertexVerbindungsIndices =                       // Index-List um zu bestimmen welche Vertices zu welchem Dreieck bzw viereck gehört.
-[
-	// Top_Right                            Erstes Viereck
-	0, 1, 2,                                //erstes (1von2) zum Viereck gehörendes Dreieck
-	0, 2, 3,                                //zweites (2von2) zum Viereck gehörendes Dreieck
+		// Bottom
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+	];
+	let vertexVerbindungsIndices =                       // Index-List um zu bestimmen welche Vertices zu welchem Dreieck bzw viereck gehört.
+	[
+		// Top_Right                            Erstes Viereck
+		0, 1, 2,                                //erstes (1von2) zum Viereck gehörendes Dreieck
+		0, 2, 3,                                //zweites (2von2) zum Viereck gehörendes Dreieck
 
-	// Top_Left                            	//
-	4, 5, 6,
-	4, 6, 7,
+		// Top_Left                            	//
+		4, 5, 6,
+		4, 6, 7,
 
-	// Left                                 //   ...
-	9, 8, 10,
-	10, 8, 11,
+		// Left                                 //   ...
+		9, 8, 10,
+		10, 8, 11,
 
-	// Right                                //   ...
-	12, 13, 14,
-	12, 14, 15,
+		// Right                                //   ...
+		12, 13, 14,
+		12, 14, 15,
 
-	// Front                                //   ...
-	17, 16, 18,
-	19, 18, 16,
+		// Front                                //   ...
+		17, 16, 18,
+		19, 18, 16,
 
-	// Back                                 //   ...
-	20, 21, 22,
-	20, 22, 23,
+		// Back                                 //   ...
+		20, 21, 22,
+		20, 22, 23,
 
-	// Bottom                               //   ...
-	25, 24, 26,
-	26, 24, 27
-];
-//
-//Buffer erstellen und mit den Daten füllen
-house.vertexBufferObject = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
+		// Bottom                               //   ...
+		25, 24, 26,
+		26, 24, 27
+	];
+	//
+	//Buffer erstellen und mit den Daten füllen
+	house.vertexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
 
-house.indexBufferObject = gl.createBuffer();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject);
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexVerbindungsIndices), gl.STATIC_DRAW);
+	house.indexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexVerbindungsIndices), gl.STATIC_DRAW);
 
-house.colorBufferObject = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorVertices), gl.STATIC_DRAW);
+	house.colorBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorVertices), gl.STATIC_DRAW);
 
-//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
+	//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
 
 
-house.draw = function(positionAttribLocation, colorAttribLocation){
+	house.draw = function(positionAttribLocation, colorAttribLocation){
 
-	gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
-	gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject); // Vertex_2
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color__
-	gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
+		gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
+		gl.bindBuffer(gl.ARRAY_BUFFER, house.vertexBufferObject); // Vertex_2
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color__
+		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
 
-	gl.enableVertexAttribArray(colorAttribLocation); // Color_1
-	gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject); // Color_2
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color__
-	gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
-	
-	gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
-	
-	gl.disableVertexAttribArray(positionAttribLocation);
-	gl.disableVertexAttribArray(colorAttribLocation);
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-};
-return house;
+		gl.enableVertexAttribArray(colorAttribLocation); // Color_1
+		gl.bindBuffer(gl.ARRAY_BUFFER, house.colorBufferObject); // Color_2
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, house.indexBufferObject); // Color__
+		gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
+		
+		gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
+		
+		gl.disableVertexAttribArray(positionAttribLocation);
+		gl.disableVertexAttribArray(colorAttribLocation);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	};
+	return house;
 }
 let InitDemo = async function () {
 //
@@ -443,6 +500,9 @@ let InitDemo = async function () {
 //
 // Create Objects
 //
+	// Create terrain
+	console.log('Creating terrain object ...');
+	var terrain = await createTerrain(gl);
 	// Create ufo
 	console.log('Creating ufo object ...');
 	var ufo = await createUfo(gl);
@@ -467,7 +527,7 @@ let InitDemo = async function () {
 	let viewMatrix = new Float32Array(16);
 	glMatrix.mat4.identity(viewMatrix);
 	let projMatrix = new Float32Array(16);
-	glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(90), canvas.width / canvas.height, 0.1, 1000.0);
+	glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(50), canvas.width / canvas.height, 0.1, 1000.0);
 	gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix); //
 	gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix); //
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix); //Verbindet die Matrix-Variable mit der GLSL-Uniform-Variable gl.uniformMatrix4fv(Position des zu ändernden UniformAttributes, Matrix transponieren?
@@ -515,9 +575,8 @@ let InitDemo = async function () {
 
 		//
 		//___________Model World (Main_Ufo) Movement
-
 		glMatrix.mat4.identity(modelWorldMatrix);
-		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0,-8,-15]);
+		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0,-8,-25]);
 		glMatrix.mat4.invert(viewMatrix, viewMatrix);
 		gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix);
 		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, 0.1, [frontDirectionStatus*(-1)+backDirectionStatus, 0, leftDirectionStatus+rightDirectionStatus*(-1)]);
@@ -531,9 +590,18 @@ let InitDemo = async function () {
 		document.getElementById("cameraPositionstestTextAusgabe3").innerHTML = testTextAusgabe3;
 		let hausTextAusgabe4 = "HausMatrix - koordinate: " + modelWorldMatrix[12] +" | "+ modelWorldMatrix[13] +" | "+ modelWorldMatrix[14];
 		document.getElementById("objectPositionstestTextAusgabe4").innerHTML = hausTextAusgabe4;
+		
+		//
+		//__________Terrain Drawing
+		glMatrix.mat4.identity(modelWorldMatrix);
+		glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [0,-3,0]);
+		glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [1000,1000,1000]);
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+		terrain.draw(positionAttribLocation, colorAttribLocation);
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+
 		//
 		//__________Model World (Häuser auf Welt verteilt) Movement
-		
 		for(let i=0;i<myRandomArrayLength-2;i++){
 			
 			glMatrix.mat4.identity(modelWorldMatrix);
