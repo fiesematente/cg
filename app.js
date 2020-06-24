@@ -7,15 +7,15 @@ attribute vec3 vertPosition;
 attribute vec3 vertColor;
 varying vec3 fragColor;
 uniform mat4 mWorld;
-uniform mat4 viewGLSL;
-uniform mat4 projGLSL;
+uniform mat4 mView;
+uniform mat4 mProj;
 
 
 void main()
 {
   
   fragColor = vertColor;
-  gl_Position = projGLSL * viewGLSL * mWorld * vec4(vertPosition, 1.0);
+  gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
 }
 `;
 
@@ -612,8 +612,8 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 // Create a identity-modelWorldMatrix, a lookAt-Matrix and perspective and Connect them with there "GLSL Uniform-Variables"
 //
 	let matWorldUniformLocation = gl.getUniformLocation(program1, 'mWorld');
-	let matCameraUniformLocation = gl.getUniformLocation(program1, 'viewGLSL');
-	let matProjUniformLocation = gl.getUniformLocation(program1, 'projGLSL');
+	let matCameraUniformLocation = gl.getUniformLocation(program1, 'mView');
+	let matProjUniformLocation = gl.getUniformLocation(program1, 'mProj');
 
 	let modelWorldMatrix = new Float32Array(16);
 	glMatrix.mat4.identity(modelWorldMatrix);
