@@ -561,6 +561,10 @@ let InitDemo = async function () {
 // 
 	let program1 = createShaderAndProgram(gl, vertexShaderText, fragmentShaderText);
 
+	// Create ufo
+	console.log('Creating ufo object ...');
+	var ufo = await createUfo(gl);
+	// Create houses
 	let house = await createHouse(gl);
 	//house.texture = texture;
 	house.program = await createShaderProgram(gl, 'house_vert.glsl', 'house_frag.glsl');
@@ -568,16 +572,21 @@ let InitDemo = async function () {
 		console.error('house: Cannot run without shader program!');
 		return;
 	}
-
-//
-// Create Objects
-//
+	gl.useProgram(house.program);
+	house.positionAttribLocation = gl.getAttribLocation(house.program, 'vertPosition');
+	house.colorAttribLocation = gl.getAttribLocation(house.program, 'vertColor');
 	// Create terrain
-	console.log('Creating terrain object ...');
-	var terrain = await createTerrain(gl);
-	// Create ufo
-	console.log('Creating ufo object ...');
-	var ufo = await createUfo(gl);
+	let terrain = await createTerrain(gl);
+	//terrain.texture = texture;
+	terrain.program = await createShaderProgram(gl, 'terrain_vert.glsl', 'terrain_frag.glsl');
+	if (!terrain.program) {
+		console.error('terrain: Cannot run without shader program!');
+		return;
+	}
+	gl.useProgram(terrain.program);
+	terrain.positionAttribLocation = gl.getAttribLocation(terrain.program, 'vertPosition');
+	terrain.colorAttribLocation = gl.getAttribLocation(terrain.program, 'vertColor');
+
 	// Create house
 	/*console.log('Creating ufo object ...');
 	var house = await createHouse(gl);*/
@@ -585,9 +594,6 @@ let InitDemo = async function () {
 //
 //	Create House
 //
-	gl.useProgram(house.program);
-	house.positionAttribLocation = gl.getAttribLocation(house.program, 'vertPosition');
-	house.colorAttribLocation = gl.getAttribLocation(house.program, 'vertColor');
 
 //
 // Configure OpenGL state machine
@@ -699,6 +705,17 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		
 		//
 		//__________Terrain Drawing
+		gl.useProgram(terrain.program);
+		matProjUniformLocation = gl.getUniformLocation(terrain.program, 'mProj');
+		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+
+		matViewUniformLocation = gl.getUniformLocation(terrain.program, 'mView');
+		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+
+		glMatrix.mat4.identity(modelWorldMatrix);
+		matWorldUniformLocation = gl.getUniformLocation(terrain.program, 'mWorld');
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+
 		glMatrix.mat4.identity(modelWorldMatrix);
 		glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [0,-3,0]);
 		glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [1000,1000,1000]);
@@ -718,10 +735,6 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 
 		glMatrix.mat4.identity(modelWorldMatrix);
 		matWorldUniformLocation = gl.getUniformLocation(house.program, 'mWorld');
-		if(!testVariable){
-			console.log(gl.getAttribLocation(house.program, 'vertPosition'));
-			testVariable = true;
-		}
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
 		for(let i=0;i<myRandomArrayLength-2;i++){
