@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Ufo Game</title>
+		<meta charset="UTF-8">
+		<script src="gl-matrix.js"></script>
+		<script src="app.js"></script>
+	</head>
+	<body onload="InitDemo();" oncontextmenu="return false;">
+		<canvas id="myCanvasObject" width="1000" height="600" onmousemove="mouseMoving(event)" style="background: red;">
+			Your browser does not support HTML5
+        </canvas>
+		<img id="house-texture" src="Texture/Brick/Brick_wall_008_COLOR.png" width="0" height="0"></img>
+		<br />
+		<i id="mausPositionstestTextAusgabe">Mausposition</i><br>
+		<i id="keyPositionstestTextAusgabe2">KeyButton</i><br>
+		<i id="cameraPositionstestTextAusgabe3">Camera</i><br>
+        <i id="objectPositionstestTextAusgabe4">Object</i><br>
+        <img id="back" src="skybox/back.jpg" width="0" height="0"></img>
+		<img id="bottom" src="skybox/bottom.jpg" width="0" height="0"></img>
+		<img id="front" src="skybox/front.jpg" width="0" height="0"></img>
+		<img id="left" src="skybox/left.jpg" width="0" height="0"></img>
+		<img id="right" src="skybox/right.jpg" width="0" height="0"></img>
+		<img id="top" src="skybox/top.jpg" width="0" height="0"></img>
+	</body>
+</html>
