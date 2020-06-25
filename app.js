@@ -256,6 +256,98 @@ async function houseColorVertexRandom(quadFaceNumber){
 	console.log(houseColVertices);
 	return houseColVertices;
 }
+function createSkyBoxTexture(gl) {
+	const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 
+		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+		document.getElementById('right'));
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 
+		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+		document.getElementById('left'));
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 
+		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+		document.getElementById('top'));
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 
+		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+		document.getElementById('bottom'));
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 
+		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+		document.getElementById('front'));
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 
+		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+		document.getElementById('back'));
+	gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+										
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    //gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+
+	return texture;
+}
+
+function createSkyBox(gl) {
+	var box = {};
+
+	var vertices =
+	[
+		-1.0,  1.0, -1.0,  // 0
+		-1.0,  1.0,  1.0,  // 1
+		 1.0,  1.0,  1.0,  // 2
+		 1.0,  1.0, -1.0,  // 3
+		-1.0, -1.0, -1.0,  // 4
+		-1.0, -1.0,  1.0,  // 5
+		 1.0, -1.0,  1.0,  // 6
+		 1.0, -1.0, -1.0,  // 7
+	];
+
+	var indices =
+	[
+		6, 2, 5,   1, 5, 2,   // front
+		0, 1, 2,   0, 2, 3,   // top
+		5, 1, 4,   4, 1, 0,   // left
+		2, 6, 7,   2, 7, 3,   // right
+		3, 7, 4,   3, 4, 0,   // back
+		5, 4, 6,   6, 4, 7    // bottom
+	];
+
+	box.vertexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, box.vertexBufferObject);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+	box.indexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, box.indexBufferObject);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+	box.draw = function() {
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBufferObject);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBufferObject);
+		const positionAttribLocation = gl.getAttribLocation(this.program, 'vPosition');
+		gl.vertexAttribPointer(
+			positionAttribLocation, // Attribute location
+			3, // Number of elements per attribute
+			gl.FLOAT, // Type of elements
+			gl.FALSE,
+			3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+			0 // Offset from the beginning of a single vertex to this attribute
+		);
+		gl.enableVertexAttribArray(positionAttribLocation);
+
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
+		
+		gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+		gl.disableVertexAttribArray(positionAttribLocation);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	}
+	return box;
+}
 async function createTerrain(gl){
 	let terrain = {};
 	let positionVertices = [
@@ -574,7 +666,7 @@ let InitDemo = async function () {
 	}
 	gl.useProgram(house.program);
 	house.positionAttribLocation = gl.getAttribLocation(house.program, 'vertPosition');
-	house.colorAttribLocation = gl.getAttribLocation(house.program, 'vertColor');
+	//house.colorAttribLocation = gl.getAttribLocation(house.program, 'vertColor');
 	// Create terrain
 	let terrain = await createTerrain(gl);
 	//terrain.texture = texture;
@@ -587,9 +679,20 @@ let InitDemo = async function () {
 	terrain.positionAttribLocation = gl.getAttribLocation(terrain.program, 'vertPosition');
 	terrain.colorAttribLocation = gl.getAttribLocation(terrain.program, 'vertColor');
 
-	// Create house
-	/*console.log('Creating ufo object ...');
-	var house = await createHouse(gl);*/
+		// Create skybox texture
+	const texture = createSkyBoxTexture(gl);
+
+	// Create skybox
+	console.log('Creating skybox ...');
+	const skybox = createSkyBox(gl);
+	skybox.texture = texture;
+	skybox.program = await createShaderProgram(gl, 'skybox_vert.glsl', 'skybox_frag.glsl');
+	if (!skybox.program) {
+		console.error('Cannot run without shader program!');
+		return;
+	}
+
+
 
 //
 //	Create House
@@ -656,9 +759,29 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 // Main render loop
 //
 	function loop(){
-		gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT); //Color-Buffer zurücksetzen
 		angle = performance.now() / 1000 / 6 * 2 * Math.PI; // "performance.now()" adiert ca. alle 5 Microsekunden (1 Sekunde = 1.000.000 Microsekunden) eine eins zurück. 360°=2*Math.PI
 		
+		// clear framebuffer
+		//gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+
+		// draw skybox
+
+		gl.disable(gl.DEPTH_TEST);
+		gl.useProgram(skybox.program);
+		matProjUniformLocation = gl.getUniformLocation(skybox.program, 'mProj');
+		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+
+		matViewUniformLocation = gl.getUniformLocation(skybox.program, 'mView');
+		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+
+		glMatrix.mat4.identity(modelWorldMatrix);
+		matWorldUniformLocation = gl.getUniformLocation(skybox.program, 'mWorld');
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+
+		skybox.draw();
+
+		// draw Content
+		gl.enable(gl.DEPTH_TEST);
 		gl.useProgram(program1);
 		matProjUniformLocation = gl.getUniformLocation(program1, 'mProj');
 		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
@@ -721,8 +844,6 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [1000,1000,1000]);
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 		terrain.draw(positionAttribLocation, colorAttribLocation);
-		gl.useProgram(program1);
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
 		//
 		//__________Model World (Häuser auf Welt verteilt) Movement
@@ -751,8 +872,11 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 			//glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [myRandom1[i],myRandom1[i],myRandom1[i]]);
 			gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 			// TODO: woher kommen positionAttribLocation und colorAttribLocation
-			house.draw(house.positionAttribLocation, house.colorAttribLocation);
+			house.draw(house.positionAttribLocation);
 		}
+
+		
+
 		requestAnimationFrame(loop); //requestAnimationFrame ruft vor jedem erneuten Rendern (»Refresh«) des Browserfensters die Animations-Funktion auf und erzeugt so einen weichen Übergang von einem Frame zum nächsten. Mit requestAnimationFrame anstelle von setInterval oder setTimeout übernimmt der Browser die Schnittstelle und optimiert das Verfahren, so dass Animationen runder, ohne Ruckeln und effizienter ablaufen. Wenn der Benutzer zu einem anderen Tab wechselt, kann der Browser die Animation pausieren, um die CPU weniger zu belasten.
 	}
 	loop();
