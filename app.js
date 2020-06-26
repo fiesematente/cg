@@ -357,10 +357,10 @@ async function createTerrain(gl){
 		1, 0, -1
 	];
 	let colorVertices = [
-		0, 1, 0,
-		0, 1, 0,
-		0, 1, 0,
-		0, 1, 0
+		0, 0, 0,
+		0, 0, 0,
+		0, 0, 0,
+		0, 0, 0
 	];
 	let vertexVerbindungsIndices = [
 		0, 1, 2,
@@ -728,8 +728,9 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 	glMatrix.mat4.identity(modelWorldMatrix);
 	let viewMatrix = new Float32Array(16);
 	glMatrix.mat4.identity(viewMatrix);
+	glMatrix.mat4.translate(viewMatrix, viewMatrix, [0,-4,-30]);
 	let projMatrix = new Float32Array(16);
-	glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(50), canvas.width / canvas.height, 0.1, 1000.0);
+	glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(60), canvas.width / canvas.height, 0.1, 50000.0);
 	gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix); //
 	gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix); //
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix); //Verbindet die Matrix-Variable mit der GLSL-Uniform-Variable gl.uniformMatrix4fv(Position des zu ändernden UniformAttributes, Matrix transponieren?
@@ -738,10 +739,15 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 // render loop Vorbereiten
 //
 	let angle = 0;
+	let xCameraRotationMatrix = new Float32Array(16); // hier wird die gedrehte Matrix gespeichert
+	let yCameraRotationMatrix = new Float32Array(16);
+	let CameraTranslationMatrix = new Float32Array(16);
+	let CameraRotationResultMatrix = new Float32Array(16);
+	let angleX = 0;
 	let maxViewTranslateSpeed = 5.00;
 	let aktuellSpeed = 0;
 	let testVariable = false;
-	let myRandomArrayLength = 300;
+	let myRandomArrayLength = 1000;
 	let myRandomArray1 = [];
 	let myRandomArray2 = [];
 	let myRandomArray3 = [];
@@ -758,6 +764,8 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 //
 // Main render loop
 //
+	let myIdentityMatrix = new Float32Array(16);
+	glMatrix.mat4.identity(myIdentityMatrix);
 	function loop(){
 		angle = performance.now() / 1000 / 6 * 2 * Math.PI; // "performance.now()" adiert ca. alle 5 Microsekunden (1 Sekunde = 1.000.000 Microsekunden) eine eins zurück. 360°=2*Math.PI
 		
@@ -795,14 +803,26 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		
 		//
 		//___________Camera Movements
-		if(maxViewTranslateSpeed)
+
+
+		cameraMovementYDown = (viewMatrix[13] > (-7)) ? (upDirectionStatus*3) : ((downDirectionStatus*(-3))+(upDirectionStatus*3));
+		document.getElementById("Ymovement").innerHTML = cameraMovementYDown;
 		cameraMovementVektor = [
 			leftDirectionStatus*(-3)+rightDirectionStatus*3,
-			(downDirectionStatus*(-3))+(upDirectionStatus*3),	//___________________Verstehe ich nicht warum [1] nicht + und - verdreht sein muss _____________________________________________________
+			cameraMovementYDown,	//___________________Verstehe ich nicht warum [1] nicht + und - verdreht sein muss _____________________________________________________
 			frontDirectionStatus*(-3)+backDirectionStatus*3
 		];
 		glMatrix.mat4.invert(viewMatrix, viewMatrix);
 		glMatrix.mat4.translate(viewMatrix, viewMatrix, cameraMovementVektor);
+		if(mouseMiddleDistancX<(-20)){
+			angleX = ((2*Math.PI)*(mouseMiddleDistancX+20))/(canvas.width/2);
+		}else if(mouseMiddleDistancX>20){
+			angleX = ((2*Math.PI)*(mouseMiddleDistancX-20))/(canvas.width/2);
+		}else{
+			angleX = 0;
+		}
+			glMatrix.mat4.rotate(viewMatrix, viewMatrix, -angleX/50, [0, 1, 0]);
+
 		gl.useProgram(program1);
 		gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix);
 
@@ -823,7 +843,7 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 
 		let testTextAusgabe3 = "viewMatrix - koordinate: " + viewMatrix[12] +" | "+ viewMatrix[13] +" | "+ viewMatrix[14];
 		document.getElementById("cameraPositionstestTextAusgabe3").innerHTML = testTextAusgabe3;
-		let hausTextAusgabe4 = "HausMatrix - koordinate: " + modelWorldMatrix[12] +" | "+ modelWorldMatrix[13] +" | "+ modelWorldMatrix[14];
+		let hausTextAusgabe4 = "Ufo - koordinate: " + modelWorldMatrix[12] +" | "+ modelWorldMatrix[13] +" | "+ modelWorldMatrix[14];
 		document.getElementById("objectPositionstestTextAusgabe4").innerHTML = hausTextAusgabe4;
 		
 		//
@@ -841,9 +861,9 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 
 		glMatrix.mat4.identity(modelWorldMatrix);
 		glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [0,-3,0]);
-		glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [1000,1000,1000]);
+		glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [10000,10000,10000]);
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-		terrain.draw(positionAttribLocation, colorAttribLocation);
+		terrain.draw(terrain.positionAttribLocation, terrain.colorAttribLocation);
 
 		//
 		//__________Model World (Häuser auf Welt verteilt) Movement
@@ -862,9 +882,9 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 			
 			glMatrix.mat4.identity(modelWorldMatrix);
 			if(i%2==0){
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [(myRandomArray2[i])*(((myRandomArrayLength-i)*5)*(-1)**i),0,(myRandomArray3[i])*(((myRandomArrayLength-i)*5)*(-1)**i)]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [(myRandomArray2[i])*(((myRandomArrayLength-i)*15)*(-1)**i),0,(myRandomArray3[i])*(((myRandomArrayLength-i)*15)*(-1)**i)]);
 			}else{
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [(myRandomArray2[i])*((i*5)*(-1)**(myRandomArrayLength-i)),0,(myRandomArray3[i])*(((myRandomArrayLength-i)*5)*(-1)**i)]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [(myRandomArray2[i])*((i*15)*(-1)**(myRandomArrayLength-i)),0,(myRandomArray3[i])*(((myRandomArrayLength-i)*15)*(-1)**i)]);
 			}
 			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArray1[i], [0, 1, 0]);
 			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[3, 3, 3]);
