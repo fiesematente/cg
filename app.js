@@ -4,8 +4,6 @@ let vertexShaderText =
 `precision mediump float;
 
 attribute vec3 vertPosition;
-attribute vec3 vertColor;
-varying vec3 fragColor;
 uniform mat4 mWorld;
 uniform mat4 mView;
 uniform mat4 mProj;
@@ -13,19 +11,15 @@ uniform mat4 mProj;
 
 void main()
 {
-  
-  fragColor = vertColor;
   gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
 }
 `;
 
 let fragmentShaderText =
 `precision mediump float;
-
-varying vec3 fragColor;
 void main()
 {
-  gl_FragColor = vec4(fragColor, 1.0);
+  gl_FragColor =  vec4(1.0, 1.0, 1.0, 1.0);
 }
 `;
 
@@ -242,7 +236,7 @@ async function fetchModel(location) {
 
 	return vbo;
 }
-async function houseColorVertexRandom(quadFaceNumber){
+/*async function houseColorVertexRandom(quadFaceNumber){
 	let vertColor = [];
 	let houseColVertices = [];
 	for (let face = 0; face < quadFaceNumber; face++){
@@ -255,7 +249,7 @@ async function houseColorVertexRandom(quadFaceNumber){
 	}
 	console.log(houseColVertices);
 	return houseColVertices;
-}
+}*/
 function createSkyBoxTexture(gl) {
 	const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
@@ -288,7 +282,6 @@ function createSkyBoxTexture(gl) {
 
 	return texture;
 }
-
 function createSkyBox(gl) {
 	var box = {};
 
@@ -415,15 +408,23 @@ async function createUfo(gl){
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	
-	ufo.draw = function(positionAttribLocation, colorAttribLocation){
+	ufo.draw = function(){
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBufferObject);
+
+		const positionAttribLocation = gl.getAttribLocation(this.program, 'vertPosition');
+		gl.vertexAttribPointer(positionAttribLocation,3,gl.FLOAT,gl.FALSE,8 * Float32Array.BYTES_PER_ELEMENT,0);
 		gl.enableVertexAttribArray(positionAttribLocation);
-		gl.enableVertexAttribArray(colorAttribLocation);
-		gl.bindBuffer(gl.ARRAY_BUFFER, ufo.vertexBufferObject);
-		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 8 * Float32Array.BYTES_PER_ELEMENT, 0);
-		gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 8 * Float32Array.BYTES_PER_ELEMENT, 5 * Float32Array.BYTES_PER_ELEMENT);
+
+		const normalAttribLocation = gl.getAttribLocation(this.program, 'vNormal');
+		gl.vertexAttribPointer(normalAttribLocation,3,gl.FLOAT,gl.FALSE,8 * Float32Array.BYTES_PER_ELEMENT,5 * Float32Array.BYTES_PER_ELEMENT);
+		gl.enableVertexAttribArray(normalAttribLocation);
+		
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
+
 		gl.drawArrays(gl.TRIANGLES, 0, positionVertices.length/8);
+		
 		gl.disableVertexAttribArray(positionAttribLocation);
-		gl.disableVertexAttribArray(colorAttribLocation);
+		gl.disableVertexAttribArray(normalAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 	return ufo;
@@ -652,10 +653,31 @@ let InitDemo = async function () {
 // Create shader Programs
 // 
 	let program1 = createShaderAndProgram(gl, vertexShaderText, fragmentShaderText);
+	// Create skybox texture
+	const texture = createSkyBoxTexture(gl);
 
+	// Create skybox
+	console.log('Creating skybox ...');
+	const skybox = createSkyBox(gl);
+	skybox.texture = texture;
+	skybox.program = await createShaderProgram(gl, 'skybox_vert.glsl', 'skybox_frag.glsl');
+	if (!skybox.program) {
+		console.error('Cannot run without shader program!');
+		return;
+	}
+	
 	// Create ufo
 	console.log('Creating ufo object ...');
-	var ufo = await createUfo(gl);
+	let ufo = await createUfo(gl);
+	ufo.texture = texture;
+	ufo.program = await createShaderProgram(gl, 'ufo_vert.glsl', 'ufo_frag.glsl');
+	if (!ufo.program) {
+		console.error('ufo: Cannot run without shader program!');
+		return;
+	}
+	gl.useProgram(ufo.program);
+	ufo.positionAttribLocation = gl.getAttribLocation(ufo.program, 'vertPosition');
+	ufo.colorAttribLocation = gl.getAttribLocation(ufo.program, 'vertColor');
 	// Create houses
 	let house = await createHouse(gl);
 	//house.texture = texture;
@@ -679,18 +701,7 @@ let InitDemo = async function () {
 	terrain.positionAttribLocation = gl.getAttribLocation(terrain.program, 'vertPosition');
 	terrain.colorAttribLocation = gl.getAttribLocation(terrain.program, 'vertColor');
 
-		// Create skybox texture
-	const texture = createSkyBoxTexture(gl);
 
-	// Create skybox
-	console.log('Creating skybox ...');
-	const skybox = createSkyBox(gl);
-	skybox.texture = texture;
-	skybox.program = await createShaderProgram(gl, 'skybox_vert.glsl', 'skybox_frag.glsl');
-	if (!skybox.program) {
-		console.error('Cannot run without shader program!');
-		return;
-	}
 
 
 
@@ -702,8 +713,6 @@ let InitDemo = async function () {
 // Configure OpenGL state machine
 //
 	gl.useProgram(program1);
-	var positionAttribLocation = gl.getAttribLocation(program1, 'vertPosition');
-	var colorAttribLocation = gl.getAttribLocation(program1, 'vertColor');
 
 	
 //
@@ -743,6 +752,7 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 	let yCameraRotationMatrix = new Float32Array(16);
 	let CameraTranslationMatrix = new Float32Array(16);
 	let CameraRotationResultMatrix = new Float32Array(16);
+	let cameraViewMatrix = new Float32Array(16);
 	let angleX = 0;
 	let maxViewTranslateSpeed = 5.00;
 	let aktuellSpeed = 0;
@@ -789,6 +799,9 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		skybox.draw();
 
 		// draw Content
+
+		//
+		//___________Camera Movements
 		gl.enable(gl.DEPTH_TEST);
 		gl.useProgram(program1);
 		matProjUniformLocation = gl.getUniformLocation(program1, 'mProj');
@@ -801,8 +814,6 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		matWorldUniformLocation = gl.getUniformLocation(program1, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 		
-		//
-		//___________Camera Movements
 
 
 		cameraMovementYDown = (viewMatrix[13] > (-7)) ? (upDirectionStatus*3) : ((downDirectionStatus*(-3))+(upDirectionStatus*3));
@@ -825,19 +836,40 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 
 		gl.useProgram(program1);
 		gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix);
+		cameraViewMatrix = viewMatrix;
+		glMatrix.mat4.identity(modelWorldMatrix);
+		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0,-8,-18]);
+		glMatrix.mat4.invert(viewMatrix, viewMatrix);
 
 		//gl.depthMask(true);
 
 		//
 		//___________Model World (Main_Ufo) Movement
-		glMatrix.mat4.identity(modelWorldMatrix);
-		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0,-8,-25]);
-		glMatrix.mat4.invert(viewMatrix, viewMatrix);
-		gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix);
+		gl.useProgram(ufo.program);
+
+		let invViewMatrix =  new Float32Array(9);
+		glMatrix.mat3.fromMat4(invViewMatrix, viewMatrix);
+		glMatrix.mat3.invert(invViewMatrix, invViewMatrix);
+		let eyeDir = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
+		glMatrix.vec3.transformMat3(eyeDir, eyeDir, invViewMatrix);
+		
+		let eyeDirUniformLocation = gl.getUniformLocation(ufo.program, 'eyeDir');
+		gl.uniform3fv(eyeDirUniformLocation, eyeDir);
+
+		matProjUniformLocation = gl.getUniformLocation(ufo.program, 'mProj');
+		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+
+		matViewUniformLocation = gl.getUniformLocation(ufo.program, 'mView');
+		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+		//viewMatrix = cameraViewMatrix;
+
+		matWorldUniformLocation = gl.getUniformLocation(ufo.program, 'mWorld');
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+
 		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, 0.1, [frontDirectionStatus*(-1)+backDirectionStatus, 0, leftDirectionStatus+rightDirectionStatus*(-1)]);
 		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, angle *5, [0, 1, 0]);
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-		ufo.draw(positionAttribLocation, colorAttribLocation);
+		ufo.draw();
 		
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
