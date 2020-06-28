@@ -401,13 +401,14 @@ async function createTerrain(gl){
 async function createUfo(gl){
 	let ufo = {};
 	
-	let positionVertices = await fetchModel('models/ufo.obj');
+	let positionVertices = await fetchModel('models/ownUfo_versatz.obj');
 
 	ufo.vertexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, ufo.vertexBufferObject);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	
+	ufo.normalBufferObject = gl.createBuffer();
 	ufo.draw = function(){
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBufferObject);
 
@@ -852,7 +853,7 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		glMatrix.mat3.invert(invViewMatrix, invViewMatrix);
 		let eyeDir = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
 		glMatrix.vec3.transformMat3(eyeDir, eyeDir, invViewMatrix);
-		
+
 		let eyeDirUniformLocation = gl.getUniformLocation(ufo.program, 'eyeDir');
 		gl.uniform3fv(eyeDirUniformLocation, eyeDir);
 
