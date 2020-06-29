@@ -759,18 +759,49 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 	let aktuellSpeed = 0;
 	let testVariable = false;
 	let myRandomArrayLength = 1000;
+	let myRandomArray = [];
 	let myRandomArray1 = [];
 	let myRandomArray2 = [];
 	let myRandomArray3 = [];
-	for (i=0; i < myRandomArrayLength; i++){
-		myRandomArray1[i]=Math.random();
+	let myRandomArray4 = [];
+	let myRandomArrayBool = [];
+	let myRandomArrayBool1 = [];
+	let myRandomArrayBool2 = [];
+	let myRandomArrayBool3 = [];
+	let myRandomArrayBool4 = [];
+	for (i=0; i < 4; i++){
+		myRandomArray[i] = [];
+		myRandomArrayBool[i] = [];
+		for (j=0; j < myRandomArrayLength; j++){
+			myRandomArray[i][j]=Math.floor(Math.random() * myRandomArrayLength*3);
+			myRandomArrayBool[i][j]=(-1)**(j*Math.floor(Math.random() * 10));
+		}
+	}
+	/*for (i=0; i < myRandomArrayLength; i++){
+		myRandomArray1[i]=Math.floor(Math.random() * myRandomArrayLength*3);
 	}
 	for (i=0; i < myRandomArrayLength; i++){
-		myRandomArray2[i]=Math.random();
+		myRandomArray2[i]=Math.floor(Math.random() * myRandomArrayLength*3);
 	}
 	for (i=0; i < myRandomArrayLength; i++){
-		myRandomArray3[i]=Math.random();
+		myRandomArray3[i]=Math.floor(Math.random() * myRandomArrayLength*3);
 	}
+	for (i=0; i < myRandomArrayLength; i++){
+		myRandomArray4[i]=Math.floor(Math.random() * myRandomArrayLength*3);
+	}
+	for (i=0; i < myRandomArrayLength; i++){
+		myRandomArrayBool1[i]=(-1)**(i*Math.floor(Math.random() * 10));
+	}
+	for (i=0; i < myRandomArrayLength; i++){
+		myRandomArrayBool2[i]=(-1)**(i*Math.floor(Math.random() * 10));
+	}
+	for (i=0; i < myRandomArrayLength; i++){
+		myRandomArrayBool3[i]=(-1)**(i*Math.floor(Math.random() * 10));
+	}
+	for (i=0; i < myRandomArrayLength; i++){
+		myRandomArrayBool4[i]=(-1)**(i*Math.floor(Math.random() * 10));
+	}*/
+	console.log(myRandomArrayBool);
 	
 //
 // Main render loop
@@ -915,11 +946,11 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 			
 			glMatrix.mat4.identity(modelWorldMatrix);
 			if(i%2==0){
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [(myRandomArray2[i])*(((myRandomArrayLength-i)*15)*(-1)**i),0,(myRandomArray3[i])*(((myRandomArrayLength-i)*15)*(-1)**i)]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool[0][i]*myRandomArray[0][i],0,(myRandomArrayBool[1][i]*myRandomArray[1][i])]);
 			}else{
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [(myRandomArray2[i])*((i*15)*(-1)**(myRandomArrayLength-i)),0,(myRandomArray3[i])*(((myRandomArrayLength-i)*15)*(-1)**i)]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool[2][i]*myRandomArray[2][i],0,(myRandomArrayBool[3][i]*myRandomArray[3][i])]);
 			}
-			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArray1[i], [0, 1, 0]);
+			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArray[1][i], [0, 1, 0]);
 			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[3, 3, 3]);
 
 			//glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [myRandom1[i],myRandom1[i],myRandom1[i]]);
