@@ -1,7 +1,5 @@
-//window.onload = InitDemo;
-
-let vertexShaderText = 
-`precision mediump float;
+let vertexShaderText =
+	`precision mediump float;
 attribute vec3 vertPosition;
 uniform mat4 mWorld;
 uniform mat4 mView;
@@ -13,7 +11,7 @@ void main()
 `;
 
 let fragmentShaderText =
-`precision mediump float;
+	`precision mediump float;
 void main()
 {
   gl_FragColor =  vec4(1.0, 1.0, 1.0, 1.0);
@@ -25,7 +23,7 @@ let gl;
 let canvas;
 let whichKeyButton = 5;
 let mouseButtonStatus = 0;
-let whichMouseButton = 5; //auf 0,1,2,3,4 kann man catchen deshalb nicht diese Verwenden zum initialisieren.
+let whichMouseButton = 5;
 let mouseMiddleDistancX = 0;
 let mouseMiddleDistancY = 0;
 let frontDirectionStatus = 0;
@@ -41,74 +39,82 @@ let testTextAusgabe = "MausPosition";
 let testTextAusgabe2 = "Testausgabe";
 let cameraMovementVektor = [0.0, 0.0, 0.0];
 
-function keyDown(event){
+function keyDown(event) {
 	whichKeyButton = event.key;
-	if(whichKeyButton=="w"){
+	if (whichKeyButton == "w") {
 		frontDirectionStatus = 1;
 	}
-	if(whichKeyButton=="s"){
+	if (whichKeyButton == "s") {
 		backDirectionStatus = 1;
 	}
-	if(whichKeyButton=="a"){
+	if (whichKeyButton == "a") {
 		leftDirectionStatus = 1;
 	}
-	if(whichKeyButton=="d"){
+	if (whichKeyButton == "d") {
 		rightDirectionStatus = 1;
 	}
-	if(whichKeyButton==" "){
+	if (whichKeyButton == "q") {
 		spaceDirectionStatus = 1;
+		document.getElementById('audio').play();
 	}
-	testTextAusgabe2 = "keyButtonStatus: " + (frontDirectionStatus+backDirectionStatus+leftDirectionStatus+rightDirectionStatus);
+	testTextAusgabe2 = "keyButtonStatus: " + (frontDirectionStatus + backDirectionStatus + leftDirectionStatus + rightDirectionStatus);
 	document.getElementById("keyPositionstestTextAusgabe2").innerHTML = testTextAusgabe2;
-	
+
 }
-function keyUp(event){
+
+function keyUp(event) {
 	whichKeyButton = event.key;
-	if(whichKeyButton=="w"){
+	if (whichKeyButton == "w") {
 		frontDirectionStatus = 0;
 	}
-	if(whichKeyButton=="s"){
+	if (whichKeyButton == "s") {
 		backDirectionStatus = 0;
 	}
-	if(whichKeyButton=="a"){
+	if (whichKeyButton == "a") {
 		leftDirectionStatus = 0;
 	}
-	if(whichKeyButton=="d"){
+	if (whichKeyButton == "d") {
 		rightDirectionStatus = 0;
 	}
-	if(whichKeyButton==" "){
+	if (whichKeyButton == "q") {
 		spaceDirectionStatus = 0;
+		document.getElementById('audio').pause();
+		
+
 	}
-	testTextAusgabe2 = "keyButtonStatus: " + (frontDirectionStatus+backDirectionStatus+leftDirectionStatus+rightDirectionStatus) + ", whichKeyButton: ";
+	testTextAusgabe2 = "keyButtonStatus: " + (frontDirectionStatus + backDirectionStatus + leftDirectionStatus + rightDirectionStatus) + ", whichKeyButton: ";
 	document.getElementById("keyPositionstestTextAusgabe2").innerHTML = testTextAusgabe2;
 }
-function mouseDown(event){
+
+function mouseDown(event) {
 	whichMouseButton = event.button;
-	if(whichMouseButton==0){
+	if (whichMouseButton == 0) {
 		upDirectionStatus = 1;
 	}
-	if(whichMouseButton==2){
+	if (whichMouseButton == 2) {
 		downDirectionStatus = 1;
 	}
 	testTextAusgabe2 = "upDirectionStatus: " + (upDirectionStatus) + " downDirectionStatus: " + (downDirectionStatus) + " whichMouseButton: " + (whichMouseButton);
 	document.getElementById("keyPositionstestTextAusgabe2").innerHTML = testTextAusgabe2;
 }
-function mouseUp(event){
+
+function mouseUp(event) {
 	whichMouseButton = event.button;
-	if(whichMouseButton==0){
+	if (whichMouseButton == 0) {
 		upDirectionStatus = 0;
 	}
-	if(whichMouseButton==2){
+	if (whichMouseButton == 2) {
 		downDirectionStatus = 0;
 	}
 	testTextAusgabe2 = "upDirectionStatus: " + (upDirectionStatus) + " downDirectionStatus: " + (downDirectionStatus) + " whichMouseButton: " + (whichMouseButton);
 	document.getElementById("keyPositionstestTextAusgabe2").innerHTML = testTextAusgabe2;
 }
+
 function mouseMoving(event) {
 	let x = event.offsetX;
 	let y = event.offsetY;
-	mouseMiddleDistancX = x-(canvas.width/2);
-	mouseMiddleDistancY = y-(canvas.height/2);
+	mouseMiddleDistancX = x - (canvas.width / 2);
+	mouseMiddleDistancY = y - (canvas.height / 2);
 	testTextAusgabe = "X coords: " + mouseMiddleDistancX + ", mouseMiddleDistancY: " + mouseMiddleDistancY;
 	document.getElementById("mausPositionstestTextAusgabe").innerHTML = testTextAusgabe;
 }
@@ -148,8 +154,9 @@ async function createShaderProgram(gl, vertexShaderLocation, fragmentShaderLocat
 	}
 	return program;
 }
-function createShaderAndProgram(gl, vertexShaderText, fragmentShaderText){
-	
+
+function createShaderAndProgram(gl, vertexShaderText, fragmentShaderText) {
+
 	let program = gl.createProgram();
 
 	let vertexShader = gl.createShader(gl.VERTEX_SHADER);
@@ -169,9 +176,9 @@ function createShaderAndProgram(gl, vertexShaderText, fragmentShaderText){
 		console.error('ERROR compiling fragment shader!', gl.getShaderInfoLog(fragmentShader));
 		return;
 	}
-//
-// Create and activate Programm
-//
+	//
+	// Create and activate Programm
+	//
 	gl.attachShader(program, vertexShader);
 	gl.attachShader(program, fragmentShader);
 	gl.linkProgram(program);
@@ -185,19 +192,18 @@ function createShaderAndProgram(gl, vertexShaderText, fragmentShaderText){
 		return;
 	}
 
-	gl.useProgram(program); // Tell OpenGL state machine which program should be active.
+	gl.useProgram(program);
 
 	return program;
 }
 async function fetchModel(location) {
-	
-	// fetch is explained at https://www.youtube.com/watch?v=tc8DU14qX6I.
+
+
 	var response = await fetch(location);
 	var txt = await response.text();
 	var lines = txt.split(/\r*\n/);
 
 
-	
 	var v = [];
 	var vt = [];
 	var vn = [];
@@ -207,108 +213,92 @@ async function fetchModel(location) {
 		var data = line.trim().split(/\s+/);
 		var type = data.shift();
 		if (type == 'v') {
-			v.push(data.map(x=>{return parseFloat(x)}));
-		}
-		else if (type == 'vt') {
-			vt.push(data.map(x=>{return parseFloat(x)}));
-		}
-		else if (type == 'vn') {
-			vn.push(data.map(x=>{return parseFloat(x)}));
-		}
-		else if (type == 'f') {
+			v.push(data.map(x => {
+				return parseFloat(x)
+			}));
+		} else if (type == 'vt') {
+			vt.push(data.map(x => {
+				return parseFloat(x)
+			}));
+		} else if (type == 'vn') {
+			vn.push(data.map(x => {
+				return parseFloat(x)
+			}));
+		} else if (type == 'f') {
 			for (fp of data) {
-				var idx = fp.split('/').map(x=>{return parseInt(x)});
-				v[idx[0]-1].forEach(x=>{vbo.push(x)});
-				vt[idx[1]-1].forEach(x=>{vbo.push(x)});
-				vn[idx[2]-1].forEach(x=>{vbo.push(x)});
+				var idx = fp.split('/').map(x => {
+					return parseInt(x)
+				});
+				v[idx[0] - 1].forEach(x => {
+					vbo.push(x)
+				});
+				vt[idx[1] - 1].forEach(x => {
+					vbo.push(x)
+				});
+				vn[idx[2] - 1].forEach(x => {
+					vbo.push(x)
+				});
 			}
 		}
 	}
 
-	/*console.log("_______________________________________");
-	console.log("_______________________________________");
-	console.log("_______________V_______________");
-	console.log(v);
-	console.log("_______________Vt_______________");
-	console.log(vt);
-	console.log("_______________Vn_______________");
-	console.log(vn);
-	console.log("_______________Vbo_______________");
-	console.log(vbo);
-	console.log("_______________________________________");
-	console.log("_______________________________________");*/
 
 	return vbo;
 }
-/*async function houseColorVertexRandom(quadFaceNumber){
-	let vertColor = [];
-	let houseColVertices = [];
-	for (let face = 0; face < quadFaceNumber; face++){
-		if(face != 1){
-			vertColor = [Math.random(), Math.random(), Math.random()];
-		}
-		for (let vertex = 0; vertex < 4; vertex++){
-			houseColVertices = houseColVertices.concat(vertColor);
-		}
-	}
-	console.log(houseColVertices);
-	return houseColVertices;
-}*/
+
 function createSkyBoxTexture(gl) {
 	const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X,
 		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
 		document.getElementById('px'));
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
 		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
 		document.getElementById('nx'));
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
 		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
 		document.getElementById('py'));
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
 		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
 		document.getElementById('ny'));
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
 		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
 		document.getElementById('pz'));
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 
+	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
 		0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
 		document.getElementById('nz'));
 	gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-										
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    //gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	//gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
 	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
 
 	return texture;
 }
+
 function createSkyBox(gl) {
 	var box = {};
 
-	var vertices =
-	[
-		-1.0,  1.0, -1.0,  // 0
-		-1.0,  1.0,  1.0,  // 1
-		 1.0,  1.0,  1.0,  // 2
-		 1.0,  1.0, -1.0,  // 3
-		-1.0, -1.0, -1.0,  // 4
-		-1.0, -1.0,  1.0,  // 5
-		 1.0, -1.0,  1.0,  // 6
-		 1.0, -1.0, -1.0,  // 7
+	var vertices = [-1.0, 1.0, -1.0, // 0
+		-1.0, 1.0, 1.0, // 1
+		1.0, 1.0, 1.0, // 2
+		1.0, 1.0, -1.0, // 3
+		-1.0, -1.0, -1.0, // 4
+		-1.0, -1.0, 1.0, // 5
+		1.0, -1.0, 1.0, // 6
+		1.0, -1.0, -1.0, // 7
 	];
 
-	var indices =
-	[
-		6, 2, 5,   1, 5, 2,   // front
-		0, 1, 2,   0, 2, 3,   // top
-		5, 1, 4,   4, 1, 0,   // left
-		2, 6, 7,   2, 7, 3,   // right
-		3, 7, 4,   3, 4, 0,   // back
-		5, 4, 6,   6, 4, 7    // bottom
+	var indices = [
+		6, 2, 5, 1, 5, 2, // front
+		0, 1, 2, 0, 2, 3, // top
+		5, 1, 4, 4, 1, 0, // left
+		2, 6, 7, 2, 7, 3, // right
+		3, 7, 4, 3, 4, 0, // back
+		5, 4, 6, 6, 4, 7 // bottom
 	];
 
 	box.vertexBufferObject = gl.createBuffer();
@@ -321,7 +311,7 @@ function createSkyBox(gl) {
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-	box.draw = function() {
+	box.draw = function () {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBufferObject);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBufferObject);
 		const positionAttribLocation = gl.getAttribLocation(this.program, 'vPosition');
@@ -336,21 +326,19 @@ function createSkyBox(gl) {
 		gl.enableVertexAttribArray(positionAttribLocation);
 
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
-		
+
 		gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 		gl.disableVertexAttribArray(positionAttribLocation);
-		
+
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 	}
 	return box;
 }
-async function createTerrain(gl){
+async function createTerrain(gl) {
 	let terrain = {};
-	let positionVertices = [
-		-1, 0, 1,
-		1, 0, 1,
-		-1, 0, -1,
+	let positionVertices = [-1, 0, 1,
+		1, 0, 1, -1, 0, -1,
 		1, 0, -1
 	];
 	let colorVertices = [
@@ -364,7 +352,7 @@ async function createTerrain(gl){
 		1, 2, 3
 	];
 
-//
+	//
 	//Buffer erstellen und mit den Daten füllen
 	terrain.vertexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, terrain.vertexBufferObject);
@@ -381,20 +369,20 @@ async function createTerrain(gl){
 	//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
 
 
-	terrain.draw = function(positionAttribLocation, colorAttribLocation){
+	terrain.draw = function (positionAttribLocation, colorAttribLocation) {
 
 		gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
 		gl.bindBuffer(gl.ARRAY_BUFFER, terrain.vertexBufferObject); // Vertex_2
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, terrain.indexBufferObject); // Color__
-		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
+		gl.vertexAttribPointer(positionAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
 
 		gl.enableVertexAttribArray(colorAttribLocation); // Color_1
 		gl.bindBuffer(gl.ARRAY_BUFFER, terrain.colorBufferObject); // Color_2
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, terrain.indexBufferObject); // Color__
 		gl.vertexAttribPointer(colorAttribLocation, 4, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
-		
+
 		gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
-		
+
 		gl.disableVertexAttribArray(positionAttribLocation);
 		gl.disableVertexAttribArray(colorAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -402,12 +390,10 @@ async function createTerrain(gl){
 	};
 	return terrain;
 }
-async function createUfo_light(gl){
+async function createUfo_light(gl) {
 	let ufo_light = {};
-	let positionVertices = [
-		-0.5, 1, 0,
-		0.5, 1, 0,
-		-1, -1, 0,
+	let positionVertices = [-0.5, 1, 0,
+		0.5, 1, 0, -1, -1, 0,
 		1, -1, 0
 	];
 	let colorVertices = [
@@ -421,7 +407,7 @@ async function createUfo_light(gl){
 		1, 2, 3
 	];
 
-//
+	//
 	//Buffer erstellen und mit den Daten füllen
 	ufo_light.vertexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, ufo_light.vertexBufferObject);
@@ -438,66 +424,66 @@ async function createUfo_light(gl){
 	//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
 
 
-	ufo_light.draw = function(positionAttribLocation, colorAttribLocation, height){
+	ufo_light.draw = function (positionAttribLocation, colorAttribLocation, height) {
 
 		gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
 		gl.bindBuffer(gl.ARRAY_BUFFER, ufo_light.vertexBufferObject); // Vertex_2
-		positionVertices[7] = -1-height;
-		positionVertices[10] = -1-height;
-		positionVertices[6] = -2-height/5;
-		positionVertices[9] = 2+height/5;
-		
+		positionVertices[7] = -1 - height;
+		positionVertices[10] = -1 - height;
+		positionVertices[6] = -2 - height / 5;
+		positionVertices[9] = 2 + height / 5;
+
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ufo_light.indexBufferObject); // Color__
-		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
+		gl.vertexAttribPointer(positionAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
 
 		gl.enableVertexAttribArray(colorAttribLocation); // Color_1
 		gl.bindBuffer(gl.ARRAY_BUFFER, ufo_light.colorBufferObject); // Color_2
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ufo_light.indexBufferObject); // Color__
 		gl.vertexAttribPointer(colorAttribLocation, 4, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
-		
+
 		gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
-		
+
 		gl.disableVertexAttribArray(positionAttribLocation);
 		gl.disableVertexAttribArray(colorAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 	};
 	return ufo_light;
-}	
-async function createUfo(gl){
+}
+async function createUfo(gl) {
 	let ufo = {};
-	
+
 	let positionVertices = await fetchModel('models/ownUfo_versatz.obj');
 
 	ufo.vertexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, ufo.vertexBufferObject);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	
+
 	ufo.normalBufferObject = gl.createBuffer();
-	ufo.draw = function(){
+	ufo.draw = function () {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBufferObject);
 
 		const positionAttribLocation = gl.getAttribLocation(this.program, 'vertPosition');
-		gl.vertexAttribPointer(positionAttribLocation,3,gl.FLOAT,gl.FALSE,8 * Float32Array.BYTES_PER_ELEMENT,0);
+		gl.vertexAttribPointer(positionAttribLocation, 3, gl.FLOAT, gl.FALSE, 8 * Float32Array.BYTES_PER_ELEMENT, 0);
 		gl.enableVertexAttribArray(positionAttribLocation);
 
 		const normalAttribLocation = gl.getAttribLocation(this.program, 'vNormal');
-		gl.vertexAttribPointer(normalAttribLocation,3,gl.FLOAT,gl.FALSE,8 * Float32Array.BYTES_PER_ELEMENT,5 * Float32Array.BYTES_PER_ELEMENT);
+		gl.vertexAttribPointer(normalAttribLocation, 3, gl.FLOAT, gl.FALSE, 8 * Float32Array.BYTES_PER_ELEMENT, 5 * Float32Array.BYTES_PER_ELEMENT);
 		gl.enableVertexAttribArray(normalAttribLocation);
-		
+
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
 
-		gl.drawArrays(gl.TRIANGLES, 0, positionVertices.length/8);
-		
+		gl.drawArrays(gl.TRIANGLES, 0, positionVertices.length / 8);
+
 		gl.disableVertexAttribArray(positionAttribLocation);
 		gl.disableVertexAttribArray(normalAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 	return ufo;
 }
-async function createHouse(gl){
+async function createHouse(gl) {
 	var house = {};
 
 	var vertices = await fetchModel('models/20960_Front_Gable_House_v1_NEW.obj');
@@ -507,7 +493,7 @@ async function createHouse(gl){
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-	house.draw = function(program) {
+	house.draw = function (program) {
 		var cAmbientUniformLocation = gl.getUniformLocation(program, 'cAmbient');
 		gl.uniform3f(cAmbientUniformLocation, 0.23, 0.09, 0.03);
 
@@ -546,16 +532,16 @@ async function createHouse(gl){
 
 		var colorAttribLocation = gl.getAttribLocation(program, 'vColor');
 		gl.vertexAttrib4f(colorAttribLocation, 1.0, 1.0, 1.0, 1.0);
-				
-		gl.drawArrays(gl.TRIANGLES, 0, vertices.length/8);
-		
+
+		gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 8);
+
 		gl.disableVertexAttribArray(positionAttribLocation);
 		gl.disableVertexAttribArray(normalAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 	return house;
 }
-async function createTree_krone(gl){
+async function createTree_krone(gl) {
 	var tree_krone = {};
 
 	var vertices = await fetchModel('models/tree_krone.obj');
@@ -565,7 +551,7 @@ async function createTree_krone(gl){
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-	tree_krone.draw = function(program) {
+	tree_krone.draw = function (program) {
 
 		var cAmbientUniformLocation = gl.getUniformLocation(program, 'cAmbient');
 		gl.uniform3f(cAmbientUniformLocation, 0.09, 0.23, 0.03);
@@ -606,16 +592,16 @@ async function createTree_krone(gl){
 
 		var colorAttribLocation = gl.getAttribLocation(program, 'vColor');
 		gl.vertexAttrib4f(colorAttribLocation, 1.0, 1.0, 1.0, 1.0);
-				
-		gl.drawArrays(gl.TRIANGLES, 0, vertices.length/8);
-		
+
+		gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 8);
+
 		gl.disableVertexAttribArray(positionAttribLocation);
 		gl.disableVertexAttribArray(normalAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 	return tree_krone;
 }
-async function createTree_stamm(gl){
+async function createTree_stamm(gl) {
 	var tree_stamm = {};
 
 	var vertices = await fetchModel('models/tree_stam.obj');
@@ -625,7 +611,7 @@ async function createTree_stamm(gl){
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-	tree_stamm.draw = function(program) {
+	tree_stamm.draw = function (program) {
 		var cAmbientUniformLocation = gl.getUniformLocation(program, 'cAmbient');
 		gl.uniform3f(cAmbientUniformLocation, 0.33, 0.19, 0.13);
 
@@ -664,39 +650,43 @@ async function createTree_stamm(gl){
 
 		var colorAttribLocation = gl.getAttribLocation(program, 'vColor');
 		gl.vertexAttrib4f(colorAttribLocation, 1.0, 1.0, 1.0, 1.0);
-				
-		gl.drawArrays(gl.TRIANGLES, 0, vertices.length/8);
-		
+
+		gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 8);
+
 		gl.disableVertexAttribArray(positionAttribLocation);
 		gl.disableVertexAttribArray(normalAttribLocation);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 	return tree_stamm;
 }
-let InitDemo = async function () {
+let InitWorld = async function () {
 
-//
-// Canvas Vorbereiten
-//
+	//
+	// Canvas Vorbereiten
+	//
 	canvas = document.getElementById('myCanvasObject');
 	gl = canvas.getContext('webgl');
 	canvas.tabIndex = 1000;
 
 
-
-//
-//Eventlistener für die Camera-Bewegung
-//
+	//
+	//Eventlistener für die Camera-Bewegung
+	//
 	canvas.addEventListener("keydown", keyDown);
 	canvas.addEventListener("keyup", keyUp);
 	canvas.addEventListener("mousedown", mouseDown);
 	canvas.addEventListener("mouseup", mouseUp);
 	canvas.addEventListener("mouseleave", mouseUp);
-	canvas.addEventListener("mouseleave", function(){mouseMiddleDistancX=0; mouseMiddleDistancY=0;});
+	canvas.addEventListener("mouseleave", function () {
+		mouseMiddleDistancX = 0;
+		mouseMiddleDistancY = 0;
+	});
 
-//
-// ________________________________________________________________________________________________________Create shader Programs
-// 
+	
+
+	//
+	// Create shader Programs
+	// 
 	let programOfCamera = createShaderAndProgram(gl, vertexShaderText, fragmentShaderText);
 	// Create skybox texture
 	const texture = createSkyBoxTexture(gl);
@@ -710,7 +700,7 @@ let InitDemo = async function () {
 		console.error('Cannot run without shader program!');
 		return;
 	}
-	
+
 	// Create ufo___________
 	console.log('Creating ufo object ...');
 	let ufo = await createUfo(gl);
@@ -787,7 +777,7 @@ let InitDemo = async function () {
 	terrain.positionAttribLocation = gl.getAttribLocation(terrain.program, 'vertPosition');
 	terrain.colorAttribLocation = gl.getAttribLocation(terrain.program, 'vertColor');
 
-	
+
 	// Create ufo_light___________
 	let ufo_light = await createUfo_light(gl);
 	ufo_light.hallo = "hallo";
@@ -802,23 +792,22 @@ let InitDemo = async function () {
 	ufo_light.colorAttribLocation = gl.getAttribLocation(ufo_light.program, 'vertColor');
 
 
-	
-//
-// Prepare WebGL
-//
-console.log('This is working');
-gl.clearColor(0.0, 0.0, 0.0, 1.0);
-gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-gl.enable(gl.DEPTH_TEST); // Aktiviert GL_DEPTH_TEST (If enabled, do depth comparisons and update the depth buffer. Note that even if the depth buffer exists and the depth mask is non-zero, the depth buffer is not updated if the depth test is disabled.)
-//gl.enable(gl.CULL_FACE); // Aktiviert Backface-Culling, wodurch die Hintere Seite des Poligons nicht mehr gerendert wird.
-gl.frontFace(gl.CCW); //frontFace(gl.CCW)Bestimmt die Poligonseite, welche als die Vordere oder hintere Seite angesehen wird, auf Grundlage der Richtung in welche sie gedreht wird.
-gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den Hinteren Poligon ein. Somit wird der Hintere nicht mehr gerändert.
-gl.enable(gl.BLEND);
-gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	//
+	// Prepare WebGL
+	//
+	console.log('This is working');
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.enable(gl.DEPTH_TEST); // Aktiviert GL_DEPTH_TEST (If enabled, do depth comparisons and update the depth buffer. Note that even if the depth buffer exists and the depth mask is non-zero, the depth buffer is not updated if the depth test is disabled.)
+	//gl.enable(gl.CULL_FACE); // Aktiviert Backface-Culling, wodurch die Hintere Seite des Poligons nicht mehr gerendert wird.
+	gl.frontFace(gl.CCW); //frontFace(gl.CCW)Bestimmt die Poligonseite, welche als die Vordere oder hintere Seite angesehen wird, auf Grundlage der Richtung in welche sie gedreht wird.
+	gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den Hinteren Poligon ein. Somit wird der Hintere nicht mehr gerändert.
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-//
-// Create a identity-modelWorldMatrix, a lookAt-Matrix and perspective and Connect them with there "GLSL Uniform-Variables"
-//
+	//
+	// Create a identity-modelWorldMatrix, a lookAt-Matrix and perspective and Connect them with there "GLSL Uniform-Variables"
+	//
 	let matWorldUniformLocation = gl.getUniformLocation(programOfCamera, 'mWorld');
 	let matCameraUniformLocation = gl.getUniformLocation(programOfCamera, 'mView');
 	let matProjUniformLocation = gl.getUniformLocation(programOfCamera, 'mProj');
@@ -828,27 +817,17 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	glMatrix.mat4.identity(modelWorldMatrix);
 	let viewMatrix = new Float32Array(16);
 	glMatrix.mat4.identity(viewMatrix);
-	glMatrix.mat4.translate(viewMatrix, viewMatrix, [0,-4,-30]);
+	glMatrix.mat4.translate(viewMatrix, viewMatrix, [0, -4, -30]);
 	let projMatrix = new Float32Array(16);
 	glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(60), canvas.width / canvas.height, 0.1, 50000.0);
 	gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix); //
 	gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix); //
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix); //Verbindet die Matrix-Variable mit der GLSL-Uniform-Variable gl.uniformMatrix4fv(Position des zu ändernden UniformAttributes, Matrix transponieren?
-	
-	/*function updateUnmovingUniforms(updateObject){
-		matProjUniformLocation = gl.getUniformLocation(updateObject.program, 'mProj');
-		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
 
-		matViewUniformLocation = gl.getUniformLocation(updateObject.program, 'mView');
-		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
 
-		glMatrix.mat4.identity(modelWorldMatrix);
-		matWorldUniformLocation = gl.getUniformLocation(updateObject.program, 'mWorld');
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-	}*/
-//
-// render loop Vorbereiten
-//
+	//
+	// render loop Vorbereiten
+	//
 	let pufferMatrix = new Float32Array(16);
 	let angle = 0;
 	let angleX = 0;
@@ -861,46 +840,47 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	let myRandomArrayFloatTrees = [];
 	let myRandomArrayBoolHouses = [];
 	let myRandomArrayBoolTrees = [];
-	let houseTranslate1 =[];
-	let houseTranslate2 =[];
-	let treeTranslate1 =[];
-	let treeTranslate2 =[];
-	for (i=0; i < 4; i++){
+	let houseTranslate1 = [];
+	let houseTranslate2 = [];
+	let treeTranslate1 = [];
+	let treeTranslate2 = [];
+	for (i = 0; i < 4; i++) {
 		myRandomArrayHouses[i] = [];
 		myRandomArrayBoolHouses[i] = [];
-		for (j=0; j < myRandomArrayLengthHouses; j++){
-			myRandomArrayHouses[i][j] = Math.floor(Math.random() * myRandomArrayLengthHouses*3);
-			myRandomArrayBoolHouses[i][j] = (-1)**(j*Math.floor(Math.random() * 10));
+		for (j = 0; j < myRandomArrayLengthHouses; j++) {
+			myRandomArrayHouses[i][j] = Math.floor(Math.random() * myRandomArrayLengthHouses * 3);
+			myRandomArrayBoolHouses[i][j] = (-1) ** (j * Math.floor(Math.random() * 10));
 		}
 	}
-	for (i=0; i < myRandomArrayLengthHouses; i++){
-		myRandomArrayFloatHouses[i] = Math.random()*2;
-		houseTranslate1[i] = [myRandomArrayBoolHouses[0][i]*myRandomArrayHouses[0][i],0,(myRandomArrayBoolHouses[1][i]*myRandomArrayHouses[1][i])];
-		houseTranslate2[i] = [myRandomArrayBoolHouses[2][i]*myRandomArrayHouses[2][i],0,(myRandomArrayBoolHouses[3][i]*myRandomArrayHouses[3][i])];
+	for (i = 0; i < myRandomArrayLengthHouses; i++) {
+		myRandomArrayFloatHouses[i] = Math.random() * 2;
+		houseTranslate1[i] = [myRandomArrayBoolHouses[0][i] * myRandomArrayHouses[0][i], 0, (myRandomArrayBoolHouses[1][i] * myRandomArrayHouses[1][i])];
+		houseTranslate2[i] = [myRandomArrayBoolHouses[2][i] * myRandomArrayHouses[2][i], 0, (myRandomArrayBoolHouses[3][i] * myRandomArrayHouses[3][i])];
 	}
-	for (i=0; i < 4; i++){
+	for (i = 0; i < 4; i++) {
 		myRandomArrayTrees[i] = [];
 		myRandomArrayBoolTrees[i] = [];
-		for (j=0; j < myRandomArrayLengthTrees; j++){
-			myRandomArrayTrees[i][j] = Math.floor(Math.random() * myRandomArrayLengthTrees*3);
-			myRandomArrayBoolTrees[i][j] = (-1)**(j*Math.floor(Math.random() * 10));
+		for (j = 0; j < myRandomArrayLengthTrees; j++) {
+			myRandomArrayTrees[i][j] = Math.floor(Math.random() * myRandomArrayLengthTrees * 3);
+			myRandomArrayBoolTrees[i][j] = (-1) ** (j * Math.floor(Math.random() * 10));
 		}
 	}
-	for (i=0; i < myRandomArrayLengthTrees; i++){
-		myRandomArrayFloatTrees[i] = Math.random()*2;
-		treeTranslate1[i] = [myRandomArrayBoolTrees[0][i]*myRandomArrayTrees[0][i],0,(myRandomArrayBoolTrees[1][i]*myRandomArrayTrees[1][i])];
-		treeTranslate2[i] = [myRandomArrayBoolTrees[2][i]*myRandomArrayTrees[2][i],0,(myRandomArrayBoolTrees[3][i]*myRandomArrayTrees[3][i])];
+	for (i = 0; i < myRandomArrayLengthTrees; i++) {
+		myRandomArrayFloatTrees[i] = Math.random() * 2;
+		treeTranslate1[i] = [myRandomArrayBoolTrees[0][i] * myRandomArrayTrees[0][i], 0, (myRandomArrayBoolTrees[1][i] * myRandomArrayTrees[1][i])];
+		treeTranslate2[i] = [myRandomArrayBoolTrees[2][i] * myRandomArrayTrees[2][i], 0, (myRandomArrayBoolTrees[3][i] * myRandomArrayTrees[3][i])];
 	}
 	console.log(myRandomArrayBoolHouses);
-	
-//
-// Main render loop
-//
+
+	//
+	// Main render loop
+	//
 	let myIdentityMatrix = new Float32Array(16);
 	glMatrix.mat4.identity(myIdentityMatrix);
-	function loop(){
+
+	function loop() {
 		angle = performance.now() / 1000 / 6 * 2 * Math.PI; // "performance.now()" adiert ca. alle 5 Microsekunden (1 Sekunde = 1.000.000 Microsekunden) eine eins zurück. 360°=2*Math.PI
-			
+
 
 		// draw skybox
 
@@ -920,27 +900,6 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.enable(gl.DEPTH_TEST);
 		// draw Content
 
-		//
-		//__________Terrain Drawing
-		
-		/*gl.disable(gl.DEPTH_TEST);
-		gl.useProgram(terrain.program);
-		matProjUniformLocation = gl.getUniformLocation(terrain.program, 'mProj');
-		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
-
-		matViewUniformLocation = gl.getUniformLocation(terrain.program, 'mView');
-		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
-
-		glMatrix.mat4.identity(modelWorldMatrix);
-		matWorldUniformLocation = gl.getUniformLocation(terrain.program, 'mWorld');
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-
-		glMatrix.mat4.identity(modelWorldMatrix);
-		glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [0,-3,0]);
-		glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [10000,10000,10000]);
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-		terrain.draw(terrain.positionAttribLocation, terrain.colorAttribLocation);
-		gl.enable(gl.DEPTH_TEST);*/
 
 		//
 		//__________Model World (Häuser auf Welt verteilt) Movement
@@ -955,19 +914,18 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		matWorldUniformLocation = gl.getUniformLocation(house.program, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		for(let i=0;i<myRandomArrayLengthHouses-2;i++){
-			
+		for (let i = 0; i < myRandomArrayLengthHouses - 2; i++) {
+
 			glMatrix.mat4.identity(modelWorldMatrix);
-			if(i%2==0){
+			if (i % 2 == 0) {
 				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, houseTranslate1[i]);
-			}else{
+			} else {
 				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, houseTranslate2[i]);
 			}
 			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloatHouses[i], [0, 1, 0]);
-			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[0.5, 0.5, 0.5]);
+			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [0.5, 0.5, 0.5]);
 
-			
-			
+
 			glMatrix.mat4.multiply(tmpMatrix, viewMatrix, modelWorldMatrix);
 			glMatrix.mat3.normalFromMat4(house.normalMatrix, tmpMatrix);
 
@@ -976,7 +934,7 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 			house.draw(house.program);
 		}
-	//
+		//
 		//__________Model World (Tree Stamm auf Welt verteilt) Movement
 		gl.useProgram(tree_stamm.program);
 		matProjUniformLocation = gl.getUniformLocation(tree_stamm.program, 'mProj');
@@ -989,19 +947,18 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		matWorldUniformLocation = gl.getUniformLocation(tree_stamm.program, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		for(let i=0;i<myRandomArrayLengthTrees-2;i++){
-			
+		for (let i = 0; i < myRandomArrayLengthTrees - 2; i++) {
+
 			glMatrix.mat4.identity(modelWorldMatrix);
-			if(i%2==0){
+			if (i % 2 == 0) {
 				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate1[i]);
-			}else{
+			} else {
 				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate2[i]);
 			}
 			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloatTrees[i], [0, 1, 0]);
-			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[0.5, 0.5, 0.5]);
+			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [0.5, 0.5, 0.5]);
 
-			
-			
+
 			glMatrix.mat4.multiply(tmpMatrix, viewMatrix, modelWorldMatrix);
 			glMatrix.mat3.normalFromMat4(tree_stamm.normalMatrix, tmpMatrix);
 
@@ -1010,8 +967,8 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 			tree_stamm.draw(tree_stamm.program);
 		}
-		
-	//
+
+		//
 		//__________Model World (Tree Krone auf Welt verteilt) Movement
 		gl.useProgram(tree_krone.program);
 		matProjUniformLocation = gl.getUniformLocation(tree_krone.program, 'mProj');
@@ -1024,16 +981,16 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		matWorldUniformLocation = gl.getUniformLocation(tree_krone.program, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		for(let i=0;i<myRandomArrayLengthTrees-2;i++){
-			
+		for (let i = 0; i < myRandomArrayLengthTrees - 2; i++) {
+
 			glMatrix.mat4.identity(modelWorldMatrix);
-			if(i%2==0){
+			if (i % 2 == 0) {
 				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate1[i]);
-			}else{
+			} else {
 				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate2[i]);
 			}
 			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloatTrees[i], [0, 1, 0]);
-			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[0.5, 0.5, 0.5]);
+			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [0.5, 0.5, 0.5]);
 
 			glMatrix.mat4.multiply(tmpMatrix, viewMatrix, modelWorldMatrix);
 			//mat4.identity(tmpMatrix);
@@ -1057,36 +1014,36 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		//glMatrix.mat4.identity(modelWorldMatrix);
 		matWorldUniformLocation = gl.getUniformLocation(programOfCamera, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-		
-		cameraMovementYDown = (viewMatrix[13] > (-7)) ? (upDirectionStatus*3) : ((downDirectionStatus*(-3))+(upDirectionStatus*3));
+
+		cameraMovementYDown = (viewMatrix[13] > (-7)) ? (upDirectionStatus * 3) : ((downDirectionStatus * (-3)) + (upDirectionStatus * 3));
 		document.getElementById("Ymovement").innerHTML = cameraMovementYDown;
 		cameraMovementVektor = [
-			leftDirectionStatus*(-aktuellSpeed)+rightDirectionStatus*aktuellSpeed,
-			cameraMovementYDown/5,
-			frontDirectionStatus*(-aktuellSpeed)+backDirectionStatus*aktuellSpeed
+			leftDirectionStatus * (-aktuellSpeed) + rightDirectionStatus * aktuellSpeed,
+			cameraMovementYDown / 5,
+			frontDirectionStatus * (-aktuellSpeed) + backDirectionStatus * aktuellSpeed
 		];
 		glMatrix.mat4.invert(viewMatrix, viewMatrix);
 		glMatrix.mat4.translate(viewMatrix, viewMatrix, cameraMovementVektor);
-		if(mouseMiddleDistancX<(-20)){
-			angleX = ((2*Math.PI)*(mouseMiddleDistancX+20))/(canvas.width/2);
-		}else if(mouseMiddleDistancX>20){
-			angleX = ((2*Math.PI)*(mouseMiddleDistancX-20))/(canvas.width/2);
-		}else{
+		if (mouseMiddleDistancX < (-20)) {
+			angleX = ((2 * Math.PI) * (mouseMiddleDistancX + 20)) / (canvas.width / 2);
+		} else if (mouseMiddleDistancX > 20) {
+			angleX = ((2 * Math.PI) * (mouseMiddleDistancX - 20)) / (canvas.width / 2);
+		} else {
 			angleX = 0;
 		}
-			glMatrix.mat4.rotate(viewMatrix, viewMatrix, -angleX/50, [0, 1, 0]);
+		glMatrix.mat4.rotate(viewMatrix, viewMatrix, -angleX / 50, [0, 1, 0]);
 
 		gl.useProgram(programOfCamera);
 		gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix);
-		
+
 		glMatrix.mat4.identity(modelWorldMatrix);
-		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0,-8,-18]);
+		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0, -8, -18]);
 		glMatrix.mat4.invert(viewMatrix, viewMatrix);
 
 
 		//
 		//__________Ufo Light Drawing
-		if(spaceDirectionStatus == 1){
+		if (spaceDirectionStatus == 1) {
 			gl.useProgram(ufo_light.program);
 			matProjUniformLocation = gl.getUniformLocation(ufo_light.program, 'mProj');
 			gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
@@ -1096,7 +1053,7 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 			matWorldUniformLocation = gl.getUniformLocation(ufo_light.program, 'mWorld');
 			gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
- 
+
 			gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 			ufo_light.draw(ufo_light.positionAttribLocation, ufo_light.colorAttribLocation, modelWorldMatrix[13]);
 		}
@@ -1105,7 +1062,7 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		//___________Model World (Main_Ufo) Movement
 		gl.useProgram(ufo.program);
 
-		let invViewMatrix =  new Float32Array(9);
+		let invViewMatrix = new Float32Array(9);
 		glMatrix.mat3.fromMat4(invViewMatrix, viewMatrix);
 		glMatrix.mat3.invert(invViewMatrix, invViewMatrix);
 		let eyeDir = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
@@ -1123,20 +1080,18 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		matWorldUniformLocation = gl.getUniformLocation(ufo.program, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, 0.1, [frontDirectionStatus*(-1)+backDirectionStatus, 0, leftDirectionStatus+rightDirectionStatus*(-1)]);
-		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, angle *5, [0, 1, 0]);
+		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, 0.1, [frontDirectionStatus * (-1) + backDirectionStatus, 0, leftDirectionStatus + rightDirectionStatus * (-1)]);
+		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, angle * 5, [0, 1, 0]);
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 		ufo.draw();
-		
+
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		let testTextAusgabe3 = "viewMatrix - koordinate: " + viewMatrix[12] +" | "+ viewMatrix[13] +" | "+ viewMatrix[14];
+		let testTextAusgabe3 = "viewMatrix - koordinate: " + viewMatrix[12] + " | " + viewMatrix[13] + " | " + viewMatrix[14];
 		document.getElementById("cameraPositionstestTextAusgabe3").innerHTML = testTextAusgabe3;
-		let hausTextAusgabe4 = "Ufo - koordinate: " + modelWorldMatrix[12] +" | "+ modelWorldMatrix[13] +" | "+ modelWorldMatrix[14];
+		let hausTextAusgabe4 = "Ufo - koordinate: " + modelWorldMatrix[12] + " | " + modelWorldMatrix[13] + " | " + modelWorldMatrix[14];
 		document.getElementById("objectPositionstestTextAusgabe4").innerHTML = hausTextAusgabe4;
-		
-		
-		
+
 
 		requestAnimationFrame(loop); //requestAnimationFrame ruft vor jedem erneuten Rendern (»Refresh«) des Browserfensters die Animations-Funktion auf und erzeugt so einen weichen Übergang von einem Frame zum nächsten. Mit requestAnimationFrame anstelle von setInterval oder setTimeout übernimmt der Browser die Schnittstelle und optimiert das Verfahren, so dass Animationen runder, ohne Ruckeln und effizienter ablaufen. Wenn der Benutzer zu einem anderen Tab wechselt, kann der Browser die Animation pausieren, um die CPU weniger zu belasten.
 	}

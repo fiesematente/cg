@@ -6,11 +6,30 @@
 		<meta charset="UTF-8">
 		<script src="gl-matrix.js"></script>
 		<script src="app.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	
 	</head>
-	<body onload="InitDemo();" oncontextmenu="return false;">
-		<canvas id="myCanvasObject" width="1000" height="600" onmousemove="mouseMoving(event)" style="background: red;">
+	
+	
+	
+
+	<body onload="InitWorld();" >
+<div  id="wholePage">
+		<img src="how-to.png" id="picture" style="display:none;">
+		<div id="allthethings">
+			<div id="left"></div>
+			  <div id="single" onclick="myFunction(); menuToggle()" ><p> PLAY</p></div>
+			<div id="howto" onclick= "showPicture();  menuToggle() "><p>HOW TO</p></div>
+			
+			  </div>
+	<br>
+	 
+	<div id="myDIV" style="display: none;">	<canvas id="myCanvasObject" width="1000" height="600" onmousemove="mouseMoving(event)" style="background: red;">
 			Your browser does not support HTML5
         </canvas>
+		
+		
+
 		<img id="terrain_texture" src="Texture/Brick/Brick_wall_008_COLOR.png" width="0" height="0"></img>
 		<br />
 		<i id="mausPositionstestTextAusgabe">Mausposition</i><br>
@@ -24,5 +43,64 @@
 		<img id="nx" src="skybox_2/nx.png" width="0" height="0"></img>
 		<img id="px" src="skybox_2/px.png" width="0" height="0"></img>
 		<img id="py" src="skybox_2/py.png" width="0" height="0"></img>
+		<audio id="audio" controls style="display:none">
+			<source src="http://freesoundeffect.net/sites/default/files/sci-fi-ambience-96-sound-effect-38446045.mp3" type="audio/mpeg"> Your browser does not support the audio element.
+		  </audio>
+		  
+		</div>
+	</div>
+		<button onclick="menuToggle(); hideGame()" class="glow-on-hover">Toggle Menu</button>
+
+	
+		 
+		 
+		 
+		 <script> 
+		 function showPicture(){
+		 	var x = document.getElementById("picture");
+	  if (x.style.display === "none") {
+		x.style.display = "block";
+	  } else {
+		x.style.display = "none";
+	  } }
+			 </script>
+		 
+		 <script>
+		function myFunction() {
+	var x = document.getElementById("myDIV");
+	  if (x.style.display === "none") {
+		x.style.display = "block";
+	  } else {
+		x.style.display = "none";
+	  }
+} 
+	  </script>
+
+<script>
+
+	function hideGame(){
+		var x = document.getElementById("myDIV");
+		var y = document.getElementById("picture");
+		if (x.style.display === "block"  ){
+			x.style.display ="none";
+			}
+			else if (y.style.display === "block" ){
+				y.style.display ="none";
+			}
+	}
+</script>
+
+<script>
+	function menuToggle() {
+	
+	  var x = document.getElementById("allthethings");
+	  if (x.style.display === "none") {
+		x.style.display = "block";
+	  } else {
+		x.style.display = "none";
+	  }
+	} 			  
+			  </script>
+		</div>
 	</body>
 </html>
