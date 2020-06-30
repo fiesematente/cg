@@ -2,13 +2,10 @@
 
 let vertexShaderText = 
 `precision mediump float;
-
 attribute vec3 vertPosition;
 uniform mat4 mWorld;
 uniform mat4 mView;
 uniform mat4 mProj;
-
-
 void main()
 {
   gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
@@ -37,6 +34,7 @@ let leftDirectionStatus = 0;
 let rightDirectionStatus = 0;
 let downDirectionStatus = 0;
 let upDirectionStatus = 0;
+let spaceDirectionStatus = 0;
 let xRotationRadiant;
 let yRotationRadiant;
 let testTextAusgabe = "MausPosition";
@@ -57,6 +55,9 @@ function keyDown(event){
 	if(whichKeyButton=="d"){
 		rightDirectionStatus = 1;
 	}
+	if(whichKeyButton==" "){
+		spaceDirectionStatus = 1;
+	}
 	testTextAusgabe2 = "keyButtonStatus: " + (frontDirectionStatus+backDirectionStatus+leftDirectionStatus+rightDirectionStatus);
 	document.getElementById("keyPositionstestTextAusgabe2").innerHTML = testTextAusgabe2;
 	
@@ -74,6 +75,9 @@ function keyUp(event){
 	}
 	if(whichKeyButton=="d"){
 		rightDirectionStatus = 0;
+	}
+	if(whichKeyButton==" "){
+		spaceDirectionStatus = 0;
 	}
 	testTextAusgabe2 = "keyButtonStatus: " + (frontDirectionStatus+backDirectionStatus+leftDirectionStatus+rightDirectionStatus) + ", whichKeyButton: ";
 	document.getElementById("keyPositionstestTextAusgabe2").innerHTML = testTextAusgabe2;
@@ -350,10 +354,10 @@ async function createTerrain(gl){
 		1, 0, -1
 	];
 	let colorVertices = [
-		0, 0, 0,
-		0, 0, 0,
-		0, 0, 0,
-		0, 0, 0
+		0.0, 1.0, 0.0, 1.0,
+		0.0, 1.0, 0.0, 1.0,
+		0.0, 1.0, 0.0, 1.0,
+		0.0, 1.0, 0.0, 1.0,
 	];
 	let vertexVerbindungsIndices = [
 		0, 1, 2,
@@ -387,7 +391,7 @@ async function createTerrain(gl){
 		gl.enableVertexAttribArray(colorAttribLocation); // Color_1
 		gl.bindBuffer(gl.ARRAY_BUFFER, terrain.colorBufferObject); // Color_2
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, terrain.indexBufferObject); // Color__
-		gl.vertexAttribPointer(colorAttribLocation, 3, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
+		gl.vertexAttribPointer(colorAttribLocation, 4, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
 		
 		gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
 		
@@ -397,6 +401,69 @@ async function createTerrain(gl){
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 	};
 	return terrain;
+}
+async function createUfo_light(gl){
+	let ufo_light = {};
+	let positionVertices = [
+		-0.5, 1, 0,
+		0.5, 1, 0,
+		-1, -1, 0,
+		1, -1, 0
+	];
+	let colorVertices = [
+		1.0, 0.0, 1.0, 0.7,
+		1.0, 0.0, 1.0, 0.7,
+		1.0, 0.0, 1.0, 0.0,
+		1.0, 0.0, 1.0, 0.0,
+	];
+	let vertexVerbindungsIndices = [
+		0, 1, 2,
+		1, 2, 3
+	];
+
+//
+	//Buffer erstellen und mit den Daten füllen
+	ufo_light.vertexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, ufo_light.vertexBufferObject);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
+
+	ufo_light.indexBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ufo_light.indexBufferObject);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexVerbindungsIndices), gl.STATIC_DRAW);
+
+	ufo_light.colorBufferObject = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, ufo_light.colorBufferObject);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorVertices), gl.STATIC_DRAW);
+
+	//Daten Buffern und Array-Buffer vor der wiederverwendung mit Farben löschen
+
+
+	ufo_light.draw = function(positionAttribLocation, colorAttribLocation, height){
+
+		gl.enableVertexAttribArray(positionAttribLocation); // Vertex_1
+		gl.bindBuffer(gl.ARRAY_BUFFER, ufo_light.vertexBufferObject); // Vertex_2
+		positionVertices[7] = -1-height;
+		positionVertices[10] = -1-height;
+		positionVertices[6] = -2-height/5;
+		positionVertices[9] = 2+height/5;
+		
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionVertices), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ufo_light.indexBufferObject); // Color__
+		gl.vertexAttribPointer(positionAttribLocation,	3, gl.FLOAT, gl.FALSE, 0, 0); // Vertex_3
+
+		gl.enableVertexAttribArray(colorAttribLocation); // Color_1
+		gl.bindBuffer(gl.ARRAY_BUFFER, ufo_light.colorBufferObject); // Color_2
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ufo_light.indexBufferObject); // Color__
+		gl.vertexAttribPointer(colorAttribLocation, 4, gl.FLOAT, gl.FALSE, 0, 0); // Color_3
+		
+		gl.drawElements(gl.TRIANGLES, vertexVerbindungsIndices.length, gl.UNSIGNED_SHORT, 0);
+		
+		gl.disableVertexAttribArray(positionAttribLocation);
+		gl.disableVertexAttribArray(colorAttribLocation);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	};
+	return ufo_light;
 }	
 async function createUfo(gl){
 	let ufo = {};
@@ -628,13 +695,13 @@ let InitDemo = async function () {
 	canvas.addEventListener("mouseleave", function(){mouseMiddleDistancX=0; mouseMiddleDistancY=0;});
 
 //
-// Create shader Programs
+// ________________________________________________________________________________________________________Create shader Programs
 // 
-	let program1 = createShaderAndProgram(gl, vertexShaderText, fragmentShaderText);
+	let programOfCamera = createShaderAndProgram(gl, vertexShaderText, fragmentShaderText);
 	// Create skybox texture
 	const texture = createSkyBoxTexture(gl);
 
-	// Create skybox
+	// Create skybox___________
 	console.log('Creating skybox ...');
 	const skybox = createSkyBox(gl);
 	skybox.texture = texture;
@@ -644,7 +711,7 @@ let InitDemo = async function () {
 		return;
 	}
 	
-	// Create ufo
+	// Create ufo___________
 	console.log('Creating ufo object ...');
 	let ufo = await createUfo(gl);
 	ufo.texture = texture;
@@ -656,7 +723,8 @@ let InitDemo = async function () {
 	gl.useProgram(ufo.program);
 	ufo.positionAttribLocation = gl.getAttribLocation(ufo.program, 'vertPosition');
 	ufo.colorAttribLocation = gl.getAttribLocation(ufo.program, 'vertColor');
-	// Create houses
+
+	// Create houses___________
 	let house = await createHouse(gl);
 	//house.texture = texture;
 	house.program = await createShaderProgram(gl, 'house_vert.glsl', 'house_frag.glsl');
@@ -674,9 +742,8 @@ let InitDemo = async function () {
 	house.normalMatrix = new Float32Array(9);
 	var tmpMatrix = new Float32Array(16);
 
-	// Create tree_stamm
+	// Create tree_stamm___________
 	let tree_stamm = await createTree_stamm(gl);
-	//tree_stamm.texture = texture;
 	tree_stamm.program = await createShaderProgram(gl, 'tree_stamm_vert.glsl', 'tree_stamm_frag.glsl');
 	if (!tree_stamm.program) {
 		console.error('tree_stamm: Cannot run without shader program!');
@@ -692,12 +759,8 @@ let InitDemo = async function () {
 	tree_stamm.normalMatrix = new Float32Array(9);
 	var tmpMatrix = new Float32Array(16);
 
-
-
-
-	// Create tree_krone
+	// Create tree_krone___________
 	let tree_krone = await createTree_krone(gl);
-	//tree_krone.texture = texture;
 	tree_krone.program = await createShaderProgram(gl, 'tree_krone_vert.glsl', 'tree_krone_frag.glsl');
 	if (!tree_krone.program) {
 		console.error('tree_krone: Cannot run without shader program!');
@@ -713,12 +776,8 @@ let InitDemo = async function () {
 	tree_krone.normalMatrix = new Float32Array(9);
 	var tmpMatrix = new Float32Array(16);
 
-
-
-
-	// Create terrain
+	// Create terrain___________
 	let terrain = await createTerrain(gl);
-	//terrain.texture = texture;
 	terrain.program = await createShaderProgram(gl, 'terrain_vert.glsl', 'terrain_frag.glsl');
 	if (!terrain.program) {
 		console.error('terrain: Cannot run without shader program!');
@@ -728,10 +787,20 @@ let InitDemo = async function () {
 	terrain.positionAttribLocation = gl.getAttribLocation(terrain.program, 'vertPosition');
 	terrain.colorAttribLocation = gl.getAttribLocation(terrain.program, 'vertColor');
 
-//
-// Configure OpenGL state machine
-//
-	gl.useProgram(program1);
+	
+	// Create ufo_light___________
+	let ufo_light = await createUfo_light(gl);
+	ufo_light.hallo = "hallo";
+	console.log(ufo_light)
+	ufo_light.program = await createShaderProgram(gl, 'ufoLight_vert.glsl', 'ufoLight_frag.glsl');
+	if (!ufo_light.program) {
+		console.error('ufo_light: Cannot run without shader program!');
+		return;
+	}
+	gl.useProgram(ufo_light.program);
+	ufo_light.positionAttribLocation = gl.getAttribLocation(ufo_light.program, 'vertPosition');
+	ufo_light.colorAttribLocation = gl.getAttribLocation(ufo_light.program, 'vertColor');
+
 
 	
 //
@@ -744,14 +813,17 @@ gl.enable(gl.DEPTH_TEST); // Aktiviert GL_DEPTH_TEST (If enabled, do depth compa
 //gl.enable(gl.CULL_FACE); // Aktiviert Backface-Culling, wodurch die Hintere Seite des Poligons nicht mehr gerendert wird.
 gl.frontFace(gl.CCW); //frontFace(gl.CCW)Bestimmt die Poligonseite, welche als die Vordere oder hintere Seite angesehen wird, auf Grundlage der Richtung in welche sie gedreht wird.
 gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den Hinteren Poligon ein. Somit wird der Hintere nicht mehr gerändert.
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 //
 // Create a identity-modelWorldMatrix, a lookAt-Matrix and perspective and Connect them with there "GLSL Uniform-Variables"
 //
-	let matWorldUniformLocation = gl.getUniformLocation(program1, 'mWorld');
-	let matCameraUniformLocation = gl.getUniformLocation(program1, 'mView');
-	let matProjUniformLocation = gl.getUniformLocation(program1, 'mProj');
+	let matWorldUniformLocation = gl.getUniformLocation(programOfCamera, 'mWorld');
+	let matCameraUniformLocation = gl.getUniformLocation(programOfCamera, 'mView');
+	let matProjUniformLocation = gl.getUniformLocation(programOfCamera, 'mProj');
 
+	gl.useProgram(programOfCamera);
 	let modelWorldMatrix = new Float32Array(16);
 	glMatrix.mat4.identity(modelWorldMatrix);
 	let viewMatrix = new Float32Array(16);
@@ -763,43 +835,63 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 	gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix); //
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix); //Verbindet die Matrix-Variable mit der GLSL-Uniform-Variable gl.uniformMatrix4fv(Position des zu ändernden UniformAttributes, Matrix transponieren?
 	
+	/*function updateUnmovingUniforms(updateObject){
+		matProjUniformLocation = gl.getUniformLocation(updateObject.program, 'mProj');
+		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+
+		matViewUniformLocation = gl.getUniformLocation(updateObject.program, 'mView');
+		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+
+		glMatrix.mat4.identity(modelWorldMatrix);
+		matWorldUniformLocation = gl.getUniformLocation(updateObject.program, 'mWorld');
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+	}*/
 //
 // render loop Vorbereiten
 //
+	let pufferMatrix = new Float32Array(16);
 	let angle = 0;
 	let angleX = 0;
 	let aktuellSpeed = 2;
-	let myRandomArrayLength = 400;
-	let myRandomArrayLength2 = 800;
-	let myRandomArray = [];
-	let myRandomArrayFloat = [];
-	let myRandomArrayFloat2 = [];
-	let myRandomArrayBool = [];
-	let myRandomArray2 = [];
-	let myRandomArrayBool2 = [];
+	let myRandomArrayLengthHouses = 400;
+	let myRandomArrayLengthTrees = 800;
+	let myRandomArrayHouses = [];
+	let myRandomArrayTrees = [];
+	let myRandomArrayFloatHouses = [];
+	let myRandomArrayFloatTrees = [];
+	let myRandomArrayBoolHouses = [];
+	let myRandomArrayBoolTrees = [];
+	let houseTranslate1 =[];
+	let houseTranslate2 =[];
+	let treeTranslate1 =[];
+	let treeTranslate2 =[];
 	for (i=0; i < 4; i++){
-		myRandomArray[i] = [];
-		myRandomArrayBool[i] = [];
-		for (j=0; j < myRandomArrayLength; j++){
-			myRandomArray[i][j] = Math.floor(Math.random() * myRandomArrayLength*3);
-			myRandomArrayBool[i][j] = (-1)**(j*Math.floor(Math.random() * 10));
+		myRandomArrayHouses[i] = [];
+		myRandomArrayBoolHouses[i] = [];
+		for (j=0; j < myRandomArrayLengthHouses; j++){
+			myRandomArrayHouses[i][j] = Math.floor(Math.random() * myRandomArrayLengthHouses*3);
+			myRandomArrayBoolHouses[i][j] = (-1)**(j*Math.floor(Math.random() * 10));
 		}
 	}
-	for (i=0; i < myRandomArrayLength; i++){
-		myRandomArrayFloat[i] = Math.random()*2;
+	for (i=0; i < myRandomArrayLengthHouses; i++){
+		myRandomArrayFloatHouses[i] = Math.random()*2;
+		houseTranslate1[i] = [myRandomArrayBoolHouses[0][i]*myRandomArrayHouses[0][i],0,(myRandomArrayBoolHouses[1][i]*myRandomArrayHouses[1][i])];
+		houseTranslate2[i] = [myRandomArrayBoolHouses[2][i]*myRandomArrayHouses[2][i],0,(myRandomArrayBoolHouses[3][i]*myRandomArrayHouses[3][i])];
 	}
 	for (i=0; i < 4; i++){
-		myRandomArray2[i] = [];
-		myRandomArrayBool2[i] = [];
-		for (j=0; j < myRandomArrayLength2; j++){
-			myRandomArray2[i][j] = Math.floor(Math.random() * myRandomArrayLength2*3);
-			myRandomArrayBool2[i][j] = (-1)**(j*Math.floor(Math.random() * 10));
+		myRandomArrayTrees[i] = [];
+		myRandomArrayBoolTrees[i] = [];
+		for (j=0; j < myRandomArrayLengthTrees; j++){
+			myRandomArrayTrees[i][j] = Math.floor(Math.random() * myRandomArrayLengthTrees*3);
+			myRandomArrayBoolTrees[i][j] = (-1)**(j*Math.floor(Math.random() * 10));
 		}
 	}
-	for (i=0; i < myRandomArrayLength2; i++){
-		myRandomArrayFloat2[i] = Math.random()*2;
+	for (i=0; i < myRandomArrayLengthTrees; i++){
+		myRandomArrayFloatTrees[i] = Math.random()*2;
+		treeTranslate1[i] = [myRandomArrayBoolTrees[0][i]*myRandomArrayTrees[0][i],0,(myRandomArrayBoolTrees[1][i]*myRandomArrayTrees[1][i])];
+		treeTranslate2[i] = [myRandomArrayBoolTrees[2][i]*myRandomArrayTrees[2][i],0,(myRandomArrayBoolTrees[3][i]*myRandomArrayTrees[3][i])];
 	}
-	console.log(myRandomArrayBool);
+	console.log(myRandomArrayBoolHouses);
 	
 //
 // Main render loop
@@ -808,9 +900,7 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 	glMatrix.mat4.identity(myIdentityMatrix);
 	function loop(){
 		angle = performance.now() / 1000 / 6 * 2 * Math.PI; // "performance.now()" adiert ca. alle 5 Microsekunden (1 Sekunde = 1.000.000 Microsekunden) eine eins zurück. 360°=2*Math.PI
-		
-		// clear framebuffer
-		//gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+			
 
 		// draw skybox
 
@@ -827,89 +917,13 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
 		skybox.draw();
-
+		gl.enable(gl.DEPTH_TEST);
 		// draw Content
 
 		//
-		//___________Camera Movements
-		gl.enable(gl.DEPTH_TEST);
-		gl.useProgram(program1);
-		matProjUniformLocation = gl.getUniformLocation(program1, 'mProj');
-		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
-
-		matViewUniformLocation = gl.getUniformLocation(program1, 'mView');
-		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
-
-		//glMatrix.mat4.identity(modelWorldMatrix);
-		matWorldUniformLocation = gl.getUniformLocation(program1, 'mWorld');
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-		
-
-
-		cameraMovementYDown = (viewMatrix[13] > (-7)) ? (upDirectionStatus*3) : ((downDirectionStatus*(-3))+(upDirectionStatus*3));
-		document.getElementById("Ymovement").innerHTML = cameraMovementYDown;
-		cameraMovementVektor = [
-			leftDirectionStatus*(-aktuellSpeed)+rightDirectionStatus*aktuellSpeed,
-			cameraMovementYDown/5,	//___________________Verstehe ich nicht warum [1] nicht + und - verdreht sein muss _____________________________________________________
-			frontDirectionStatus*(-aktuellSpeed)+backDirectionStatus*aktuellSpeed
-		];
-		glMatrix.mat4.invert(viewMatrix, viewMatrix);
-		glMatrix.mat4.translate(viewMatrix, viewMatrix, cameraMovementVektor);
-		if(mouseMiddleDistancX<(-20)){
-			angleX = ((2*Math.PI)*(mouseMiddleDistancX+20))/(canvas.width/2);
-		}else if(mouseMiddleDistancX>20){
-			angleX = ((2*Math.PI)*(mouseMiddleDistancX-20))/(canvas.width/2);
-		}else{
-			angleX = 0;
-		}
-			glMatrix.mat4.rotate(viewMatrix, viewMatrix, -angleX/50, [0, 1, 0]);
-
-		gl.useProgram(program1);
-		gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix);
-		cameraViewMatrix = viewMatrix;
-		glMatrix.mat4.identity(modelWorldMatrix);
-		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0,-8,-18]);
-		glMatrix.mat4.invert(viewMatrix, viewMatrix);
-
-		//gl.depthMask(true);
-
-		//
-		//___________Model World (Main_Ufo) Movement
-		gl.useProgram(ufo.program);
-
-		let invViewMatrix =  new Float32Array(9);
-		glMatrix.mat3.fromMat4(invViewMatrix, viewMatrix);
-		glMatrix.mat3.invert(invViewMatrix, invViewMatrix);
-		let eyeDir = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
-		glMatrix.vec3.transformMat3(eyeDir, eyeDir, invViewMatrix);
-
-		let eyeDirUniformLocation = gl.getUniformLocation(ufo.program, 'eyeDir');
-		gl.uniform3fv(eyeDirUniformLocation, eyeDir);
-
-		matProjUniformLocation = gl.getUniformLocation(ufo.program, 'mProj');
-		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
-
-		matViewUniformLocation = gl.getUniformLocation(ufo.program, 'mView');
-		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
-		//viewMatrix = cameraViewMatrix;
-
-		matWorldUniformLocation = gl.getUniformLocation(ufo.program, 'mWorld');
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-
-		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, 0.1, [frontDirectionStatus*(-1)+backDirectionStatus, 0, leftDirectionStatus+rightDirectionStatus*(-1)]);
-		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, angle *5, [0, 1, 0]);
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-		ufo.draw();
-		
-		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-
-		let testTextAusgabe3 = "viewMatrix - koordinate: " + viewMatrix[12] +" | "+ viewMatrix[13] +" | "+ viewMatrix[14];
-		document.getElementById("cameraPositionstestTextAusgabe3").innerHTML = testTextAusgabe3;
-		let hausTextAusgabe4 = "Ufo - koordinate: " + modelWorldMatrix[12] +" | "+ modelWorldMatrix[13] +" | "+ modelWorldMatrix[14];
-		document.getElementById("objectPositionstestTextAusgabe4").innerHTML = hausTextAusgabe4;
-		
-		//
 		//__________Terrain Drawing
+		
+		/*gl.disable(gl.DEPTH_TEST);
 		gl.useProgram(terrain.program);
 		matProjUniformLocation = gl.getUniformLocation(terrain.program, 'mProj');
 		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
@@ -925,7 +939,8 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [0,-3,0]);
 		glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [10000,10000,10000]);
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
-		//terrain.draw(terrain.positionAttribLocation, terrain.colorAttribLocation);
+		terrain.draw(terrain.positionAttribLocation, terrain.colorAttribLocation);
+		gl.enable(gl.DEPTH_TEST);*/
 
 		//
 		//__________Model World (Häuser auf Welt verteilt) Movement
@@ -940,22 +955,20 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		matWorldUniformLocation = gl.getUniformLocation(house.program, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		for(let i=0;i<myRandomArrayLength-2;i++){
+		for(let i=0;i<myRandomArrayLengthHouses-2;i++){
 			
 			glMatrix.mat4.identity(modelWorldMatrix);
 			if(i%2==0){
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool[0][i]*myRandomArray[0][i],0,(myRandomArrayBool[1][i]*myRandomArray[1][i])]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, houseTranslate1[i]);
 			}else{
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool[2][i]*myRandomArray[2][i],0,(myRandomArrayBool[3][i]*myRandomArray[3][i])]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, houseTranslate2[i]);
 			}
-			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloat[i], [0, 1, 0]);
+			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloatHouses[i], [0, 1, 0]);
 			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[0.5, 0.5, 0.5]);
 
-			//glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [myRandom1[i],myRandom1[i],myRandom1[i]]);
 			
 			
 			glMatrix.mat4.multiply(tmpMatrix, viewMatrix, modelWorldMatrix);
-			//mat4.identity(tmpMatrix);
 			glMatrix.mat3.normalFromMat4(house.normalMatrix, tmpMatrix);
 
 			gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
@@ -976,22 +989,20 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		matWorldUniformLocation = gl.getUniformLocation(tree_stamm.program, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		for(let i=0;i<myRandomArrayLength2-2;i++){
+		for(let i=0;i<myRandomArrayLengthTrees-2;i++){
 			
 			glMatrix.mat4.identity(modelWorldMatrix);
 			if(i%2==0){
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool2[0][i]*myRandomArray2[0][i],0,(myRandomArrayBool2[1][i]*myRandomArray2[1][i])]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate1[i]);
 			}else{
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool2[2][i]*myRandomArray2[2][i],0,(myRandomArrayBool2[3][i]*myRandomArray2[3][i])]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate2[i]);
 			}
-			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloat2[i], [0, 1, 0]);
+			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloatTrees[i], [0, 1, 0]);
 			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[0.5, 0.5, 0.5]);
 
-			//glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [myRandom1[i],myRandom1[i],myRandom1[i]]);
 			
 			
 			glMatrix.mat4.multiply(tmpMatrix, viewMatrix, modelWorldMatrix);
-			//mat4.identity(tmpMatrix);
 			glMatrix.mat3.normalFromMat4(tree_stamm.normalMatrix, tmpMatrix);
 
 			gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
@@ -1013,20 +1024,17 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 		matWorldUniformLocation = gl.getUniformLocation(tree_krone.program, 'mWorld');
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
 
-		for(let i=0;i<myRandomArrayLength2-2;i++){
+		for(let i=0;i<myRandomArrayLengthTrees-2;i++){
 			
 			glMatrix.mat4.identity(modelWorldMatrix);
 			if(i%2==0){
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool2[0][i]*myRandomArray2[0][i],0,(myRandomArrayBool2[1][i]*myRandomArray2[1][i])]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate1[i]);
 			}else{
-				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, [myRandomArrayBool2[2][i]*myRandomArray2[2][i],0,(myRandomArrayBool2[3][i]*myRandomArray2[3][i])]);
+				glMatrix.mat4.translate(modelWorldMatrix, modelWorldMatrix, treeTranslate2[i]);
 			}
-			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloat2[i], [0, 1, 0]);
+			glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, Math.PI * myRandomArrayFloatTrees[i], [0, 1, 0]);
 			glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix,[0.5, 0.5, 0.5]);
 
-			//glMatrix.mat4.scale(modelWorldMatrix, modelWorldMatrix, [myRandom1[i],myRandom1[i],myRandom1[i]]);
-			
-			
 			glMatrix.mat4.multiply(tmpMatrix, viewMatrix, modelWorldMatrix);
 			//mat4.identity(tmpMatrix);
 			glMatrix.mat3.normalFromMat4(tree_krone.normalMatrix, tmpMatrix);
@@ -1036,6 +1044,99 @@ gl.cullFace(gl.BACK); // CullFace(gl.Back) stellt das Backface-Culling auf den H
 
 			tree_krone.draw(tree_krone.program);
 		}
+
+		//
+		//___________Camera Movements
+		gl.useProgram(programOfCamera);
+		matProjUniformLocation = gl.getUniformLocation(programOfCamera, 'mProj');
+		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+
+		matViewUniformLocation = gl.getUniformLocation(programOfCamera, 'mView');
+		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+
+		//glMatrix.mat4.identity(modelWorldMatrix);
+		matWorldUniformLocation = gl.getUniformLocation(programOfCamera, 'mWorld');
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+		
+		cameraMovementYDown = (viewMatrix[13] > (-7)) ? (upDirectionStatus*3) : ((downDirectionStatus*(-3))+(upDirectionStatus*3));
+		document.getElementById("Ymovement").innerHTML = cameraMovementYDown;
+		cameraMovementVektor = [
+			leftDirectionStatus*(-aktuellSpeed)+rightDirectionStatus*aktuellSpeed,
+			cameraMovementYDown/5,
+			frontDirectionStatus*(-aktuellSpeed)+backDirectionStatus*aktuellSpeed
+		];
+		glMatrix.mat4.invert(viewMatrix, viewMatrix);
+		glMatrix.mat4.translate(viewMatrix, viewMatrix, cameraMovementVektor);
+		if(mouseMiddleDistancX<(-20)){
+			angleX = ((2*Math.PI)*(mouseMiddleDistancX+20))/(canvas.width/2);
+		}else if(mouseMiddleDistancX>20){
+			angleX = ((2*Math.PI)*(mouseMiddleDistancX-20))/(canvas.width/2);
+		}else{
+			angleX = 0;
+		}
+			glMatrix.mat4.rotate(viewMatrix, viewMatrix, -angleX/50, [0, 1, 0]);
+
+		gl.useProgram(programOfCamera);
+		gl.uniformMatrix4fv(matCameraUniformLocation, gl.FALSE, viewMatrix);
+		
+		glMatrix.mat4.identity(modelWorldMatrix);
+		glMatrix.mat4.translate(modelWorldMatrix, viewMatrix, [0,-8,-18]);
+		glMatrix.mat4.invert(viewMatrix, viewMatrix);
+
+
+		//
+		//__________Ufo Light Drawing
+		if(spaceDirectionStatus == 1){
+			gl.useProgram(ufo_light.program);
+			matProjUniformLocation = gl.getUniformLocation(ufo_light.program, 'mProj');
+			gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+
+			matViewUniformLocation = gl.getUniformLocation(ufo_light.program, 'mView');
+			gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+
+			matWorldUniformLocation = gl.getUniformLocation(ufo_light.program, 'mWorld');
+			gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+ 
+			gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+			ufo_light.draw(ufo_light.positionAttribLocation, ufo_light.colorAttribLocation, modelWorldMatrix[13]);
+		}
+
+		//
+		//___________Model World (Main_Ufo) Movement
+		gl.useProgram(ufo.program);
+
+		let invViewMatrix =  new Float32Array(9);
+		glMatrix.mat3.fromMat4(invViewMatrix, viewMatrix);
+		glMatrix.mat3.invert(invViewMatrix, invViewMatrix);
+		let eyeDir = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
+		glMatrix.vec3.transformMat3(eyeDir, eyeDir, invViewMatrix);
+
+		let eyeDirUniformLocation = gl.getUniformLocation(ufo.program, 'eyeDir');
+		gl.uniform3fv(eyeDirUniformLocation, eyeDir);
+
+		matProjUniformLocation = gl.getUniformLocation(ufo.program, 'mProj');
+		gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+
+		matViewUniformLocation = gl.getUniformLocation(ufo.program, 'mView');
+		gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+
+		matWorldUniformLocation = gl.getUniformLocation(ufo.program, 'mWorld');
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+
+		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, 0.1, [frontDirectionStatus*(-1)+backDirectionStatus, 0, leftDirectionStatus+rightDirectionStatus*(-1)]);
+		glMatrix.mat4.rotate(modelWorldMatrix, modelWorldMatrix, angle *5, [0, 1, 0]);
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+		ufo.draw();
+		
+		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, modelWorldMatrix);
+
+		let testTextAusgabe3 = "viewMatrix - koordinate: " + viewMatrix[12] +" | "+ viewMatrix[13] +" | "+ viewMatrix[14];
+		document.getElementById("cameraPositionstestTextAusgabe3").innerHTML = testTextAusgabe3;
+		let hausTextAusgabe4 = "Ufo - koordinate: " + modelWorldMatrix[12] +" | "+ modelWorldMatrix[13] +" | "+ modelWorldMatrix[14];
+		document.getElementById("objectPositionstestTextAusgabe4").innerHTML = hausTextAusgabe4;
+		
+		
+		
 
 		requestAnimationFrame(loop); //requestAnimationFrame ruft vor jedem erneuten Rendern (»Refresh«) des Browserfensters die Animations-Funktion auf und erzeugt so einen weichen Übergang von einem Frame zum nächsten. Mit requestAnimationFrame anstelle von setInterval oder setTimeout übernimmt der Browser die Schnittstelle und optimiert das Verfahren, so dass Animationen runder, ohne Ruckeln und effizienter ablaufen. Wenn der Benutzer zu einem anderen Tab wechselt, kann der Browser die Animation pausieren, um die CPU weniger zu belasten.
 	}
